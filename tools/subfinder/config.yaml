@@ -1,0 +1,8 @@
+name: "Subfinder"
+run_command: "subfinder"
+description: "Subdomain enumeration tool."
+documentation: "https://github.com/projectdiscovery/subfinder"
+tags:
+  - reconnaissance
+  - subdomains
+accepts_stdin: true

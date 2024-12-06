@@ -1,0 +1,14 @@
+aliases:
+  default-enum:
+    description: "Default Nmap enumeration scan"
+    command: "-sC -sV -Pn {{target}}"
+    variables:
+      - name: target
+        description: "IP or hostname to scan"
+
+  stealth-scan:
+    description: "Stealth SYN scan"
+    command: "-sS {{target}}"
+    variables:
+      - name: target
+        description: "IP or hostname to scan"

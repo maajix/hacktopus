@@ -1,0 +1,9 @@
+name: "Nmap"
+run_command: "nmap"
+description: "A network mapper utility used for network discovery and security auditing."
+documentation: "https://nmap.org/"
+tags:
+  - scanner
+  - network
+  - reconnaissance
+accepts_stdin: false

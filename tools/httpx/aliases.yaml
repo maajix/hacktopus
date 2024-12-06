@@ -1,0 +1,4 @@
+aliases:
+  probe:
+    description: "Check which hosts are alive and gather title/status/tech."
+    command: "-silent -title -status-code -tech-detect"

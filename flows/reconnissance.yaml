@@ -1,0 +1,32 @@
+description: "Reconnaissance flow that finds subdomains, probes them, and performs web technology scanning and directory fuzzing."
+variables:
+  target: "{{target}}"
+  wordlist: "{{wordlist}}"
+
+steps:
+  - alias: "subfinder:find-subdomains"
+    pipe_output: true
+    # print_output: true
+    # This step enumerates subdomains and pipes them to the next step.
+
+  - alias: "httpx:probe"
+    pipe_input: true
+    pipe_output: true
+    # Takes subdomains from the previous step and probes them, outputting lines like:
+    # https://sub1.example.com [200] [Apache/2.4.41] [title: "Welcome"]
+    # The output here is used by parallel tasks.
+
+  - parallel:
+      combine_output: false
+      fan_out: true
+      tasks:
+        - alias: "whatweb:basic-scan"
+          pipe_input: true
+          print_output: true
+          # whatweb can take each URL line from httpx as input (fan_out: true means all tasks get the same input)
+          # It identifies technologies for each discovered host.
+
+        - alias: "ffuf:dir-scan"
+          # ffuf does not accept stdin, so we do not set pipe_input to true here.
+          # Without pipe_input: true, ffuf will run independently using the target and wordlist variables provided at runtime.
+          # The user must supply a target and a wordlist via command line args or they will be prompted.

@@ -1,0 +1,8 @@
+paths:
+  tools_dir: "./tools"
+  flows_dir: "./flows"
+logging:
+  enabled: true
+  level: "info"
+colors:
+  enabled: true

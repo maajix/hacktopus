@@ -1,0 +1,7 @@
+name: "WhatWeb"
+run_command: "whatweb"
+description: "Web scanner to identify technologies."
+documentation: "https://github.com/urbanadventurer/WhatWeb"
+tags:
+  - web
+  - reconnaissance

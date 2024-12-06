@@ -1,0 +1,9 @@
+aliases:
+  dir-scan:
+    description: "Directory enumeration on a single web target"
+    command: "-u {{target}}/FUZZ -w {{wordlist}} -mc 200,301,302"
+    variables:
+      - name: target
+        description: "Base URL of the target site"
+      - name: wordlist
+        description: "Path to the wordlist file"

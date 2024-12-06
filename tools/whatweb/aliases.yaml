@@ -1,0 +1,7 @@
+aliases:
+  basic-scan:
+    description: "Identify web technologies on a target"
+    command: "{{target}}"
+    variables:
+      - name: target
+        description: "URL (with protocol) to scan"

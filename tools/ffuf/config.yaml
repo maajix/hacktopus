@@ -1,0 +1,9 @@
+name: "FFUF"
+run_command: "ffuf"
+description: "Fuzz directories and files on a web application."
+documentation: "https://github.com/ffuf/ffuf"
+tags:
+  - web
+  - enumeration
+  - fuzzing
+accepts_stdin: false

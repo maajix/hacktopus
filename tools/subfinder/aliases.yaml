@@ -1,0 +1,7 @@
+aliases:
+  find-subdomains:
+    description: "Find subdomains of a given domain"
+    command: "-silent -d {{target}}"
+    variables:
+      - name: target
+        description: "Target domain"
