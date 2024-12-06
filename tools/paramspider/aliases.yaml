@@ -1,0 +1,8 @@
+aliases:
+  discover:
+    description: "Find hidden parameters"
+    command: "-d {{url}}"
+    variables:
+      - name: url
+        description: "Target domain"
+        transform: "url_to_domain"

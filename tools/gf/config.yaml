@@ -1,0 +1,7 @@
+description: "Pattern matcher for web security testing"
+tags:
+  - pattern-matching
+  - filtering
+  - web
+run_command: "gf"
+accepts_stdin: true

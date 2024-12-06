@@ -1,0 +1,4 @@
+aliases:
+  patterns:
+    description: "Extract potentially vulnerable XSS parameters"
+    command: "xss"

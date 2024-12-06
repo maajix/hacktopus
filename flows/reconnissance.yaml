@@ -6,7 +6,7 @@ variables:
 steps:
   - alias: "subfinder:find-subdomains"
     pipe_output: true
-    # print_output: true
+    print_output: true
     # This step enumerates subdomains and pipes them to the next step.
 
   - alias: "httpx:probe"
@@ -22,7 +22,7 @@ steps:
       tasks:
         - alias: "whatweb:basic-scan"
           pipe_input: true
-          print_output: true
+          # print_output: true
           # whatweb can take each URL line from httpx as input (fan_out: true means all tasks get the same input)
           # It identifies technologies for each discovered host.
 

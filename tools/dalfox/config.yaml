@@ -1,0 +1,7 @@
+description: "Powerful XSS scanning and parameter analysis tool"
+tags:
+  - xss
+  - scanner
+  - web
+run_command: "dalfox"
+accepts_stdin: true

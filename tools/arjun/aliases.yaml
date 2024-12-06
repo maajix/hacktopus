@@ -1,0 +1,7 @@
+aliases:
+  params:
+    description: "Discover hidden parameters through fuzzing"
+    command: "-u {{url}} -t 50 --stable"
+    variables:
+      - name: url
+        description: "Target URL"

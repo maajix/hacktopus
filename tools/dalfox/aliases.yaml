@@ -1,0 +1,7 @@
+aliases:
+  scan:
+    description: "Thorough XSS scanning"
+    command: "pipe --silence --skip-bav --skip-mining-all --skip-mining-dict --only-custom-payload"
+    variables:
+      - name: payloads
+        description: "Path to XSS payloads file"

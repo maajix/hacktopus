@@ -1,0 +1,7 @@
+description: "Advanced parameter discovery tool"
+tags:
+  - parameter-discovery
+  - fuzzing
+  - web
+run_command: "arjun"
+accepts_stdin: true

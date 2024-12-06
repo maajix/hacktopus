@@ -125,6 +125,54 @@ def aliases_command():
     console.print(table)
 
 
+@cli.command(name="add")
+@click.argument('name')
+def create_tool(name):
+    """Create a new tool directory with config and aliases files."""
+    tools_dir = global_config.get("paths", {}).get("tools_dir", "./tools")
+
+    # Create tool directory
+    tool_dir = os.path.join(tools_dir, name)
+    if os.path.exists(tool_dir):
+        console.print(f"[red]Tool directory '{name}' already exists.[/red]")
+        return
+
+    try:
+        # Create directories
+        os.makedirs(tool_dir, exist_ok=True)
+
+        # Create config.yaml
+        config_content = {
+            "description": "",
+            "tags": [],
+            "run_command": "",
+            "accepts_stdin": True
+        }
+
+        with open(os.path.join(tool_dir, "config.yaml"), 'w') as f:
+            yaml.dump(config_content, f, sort_keys=False)
+
+        # Create aliases.yaml
+        aliases_content = {
+            "aliases": {
+                "default": {
+                    "description": "",
+                    "command": "",
+                    "variables": []
+                }
+            }
+        }
+
+        with open(os.path.join(tool_dir, "aliases.yaml"), 'w') as f:
+            yaml.dump(aliases_content, f, sort_keys=False)
+
+        console.print(
+            f"[green]Successfully created tool directory '{name}' with config and aliases files.[/green]")
+
+    except Exception as e:
+        console.print(f"[red]Error creating tool directory: {str(e)}[/red]")
+
+
 @cli.command(name="exec")
 @click.argument('alias_name')
 @click.argument('args', nargs=-1)
@@ -231,24 +279,41 @@ def flow_info_command(flow_name):
         if 'alias' in step:
             alias_str = step['alias']
             alias_node = flow_tree.add(f"● [green]{alias_str}[/green]")
-            if step.get('pipe_output'):
-                alias_node.add("pipe_output: true")
+
+            configs = []
             if step.get('pipe_input'):
-                alias_node.add("pipe_input: true")
+                configs.append(("pipe_input", "true"))
+            if step.get('pipe_output'):
+                configs.append(("pipe_output", "true"))
+            if step.get('print_output'):
+                configs.append(("print_output", "true"))
+
+            for config_name, config_value in configs:
+                alias_node.add(f"└── {config_name}: {config_value}")
 
         elif 'parallel' in step:
             parallel_def = step['parallel']
-            combine_output = parallel_def.get('combine_output', False)
-            fan_out = parallel_def.get('fan_out', False)
+            parallel_node = flow_tree.add("● PARALLEL EXECUTION")
 
-            parallel_node = flow_tree.add(
-                f"● PARALLEL EXECUTION [fan_out: {fan_out}, combine_output: {combine_output}]")
+            # Add parallel configuration
+            if parallel_def.get('fan_out'):
+                parallel_node.add(f"├── fan_out: {parallel_def.get('fan_out')}")
+            if parallel_def.get('combine_output'):
+                parallel_node.add(f"├── combine_output: {parallel_def.get('combine_output')}")
+
             tasks = parallel_def.get('tasks', [])
             for t in tasks:
                 t_alias = t['alias']
                 task_node = parallel_node.add(f"● [green]{t_alias}[/green]")
+
+                configs = []
                 if t.get('pipe_input'):
-                    task_node.add("pipe_input: true")
+                    configs.append(("pipe_input", "true"))
+                if t.get('print_output'):
+                    configs.append(("print_output", "true"))
+
+                for config_name, config_value in configs:
+                    task_node.add(f"└── {config_name}: {config_value}")
 
     console.print()
     console.print(flow_tree)
@@ -322,8 +387,9 @@ def validate_flow(flow_def, var_values):
 @click.argument('flow_name')
 @click.option('--print-step-output', is_flag=True, help="Print each step's output after execution")
 @click.option('--strip-colors', is_flag=True, help="Strip ANSI color codes from output")
+@click.option('--debug', is_flag=True, help="Show stderr output and additional debug information")
 @click.pass_context
-def flow_run_command(ctx, flow_name, print_step_output, strip_colors):
+def flow_run_command(ctx, flow_name, print_step_output, strip_colors, debug):
     """Run a defined flow with error checking and optional color stripping."""
     flow_def = load_flow(flow_name)
     if not flow_def:
@@ -366,6 +432,15 @@ def flow_run_command(ctx, flow_name, print_step_output, strip_colors):
     steps = flow_def.get('steps', [])
     last_output = None
 
+    def transform_value(value, transform_type):
+        """Transform a value based on the specified transformation type."""
+        if transform_type == "url_to_domain":
+            from urllib.parse import urlparse
+            domain = urlparse(value).netloc
+            return domain.removeprefix('www.')
+        # Add more transformations as needed
+        return value
+
     async def run_alias_async(tool_name, alias_name, input_data=None):
         loop = asyncio.get_event_loop()
         tool_config, tool_aliases = load_tool(tool_name)
@@ -373,9 +448,23 @@ def flow_run_command(ctx, flow_name, print_step_output, strip_colors):
         cmd_template = alias_def.get("command", "")
         variables = alias_def.get("variables", [])
 
+        # Process variables with their transforms
+        processed_vars = var_values.copy()
         for var_def in variables:
             vname = var_def['name']
-            cmd_template = cmd_template.replace(f"{{{{{vname}}}}}", var_values[vname])
+            if vname in processed_vars and 'transform' in var_def:
+                transform_type = var_def['transform']
+                original = processed_vars[vname]
+                processed_vars[vname] = transform_value(original, transform_type)
+                if debug:
+                    console.print(
+                        f"[yellow]Debug - Transforming {vname} using {transform_type}: {original} -> {processed_vars[vname]}[/yellow]")
+
+        # Apply processed variables to command template
+        for var_def in variables:
+            vname = var_def['name']
+            if vname in processed_vars:
+                cmd_template = cmd_template.replace(f"{{{{{vname}}}}}", processed_vars[vname])
 
         run_command = tool_config.get("run_command")
         full_cmd = f"{run_command} {cmd_template}"
@@ -386,9 +475,10 @@ def flow_run_command(ctx, flow_name, print_step_output, strip_colors):
                 proc = subprocess.run(full_cmd, shell=True, input=input_data, text=True,
                                       stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-                # Check for errors in stderr even if return code is 0
-                if proc.stderr and proc.stderr.strip():
-                    console.print(f"[yellow]Warning from '{alias_name}':[/yellow] {proc.stderr}")
+                # Show stderr in debug mode
+                if debug and proc.stderr and proc.stderr.strip():
+                    console.print(f"[yellow]Debug - stderr from '{alias_name}':[/yellow]")
+                    console.print(proc.stderr)
 
                 # Strip colors if requested
                 output = proc.stdout
@@ -439,18 +529,18 @@ def flow_run_command(ctx, flow_name, print_step_output, strip_colors):
                 return None
             outputs.append(stdout)
 
+            # Only print output if print_output is true for this task or global print_step_output is set
+            if stdout and stdout.strip():
+                should_print = task_info[i][1] or print_step_output
+                if should_print:
+                    console.print(
+                        f"[bold blue]Output from parallel task '{task_info[i][0]}':[/bold blue]")
+                    console.print(stdout)
+
         if combine_output:
             combined = "\n".join(o.strip() for o in outputs if o)
             return combined
-        else:
-            for i, (alias_str, t_print_output) in enumerate(task_info):
-                out = outputs[i]
-                if out and out.strip():
-                    if t_print_output or print_step_output:
-                        console.print(
-                            f"[bold blue]Output from parallel task '{alias_str}':[/bold blue]")
-                        console.print(out)
-            return None
+        return None
 
     async def run_flow():
         nonlocal last_output
@@ -462,10 +552,13 @@ def flow_run_command(ctx, flow_name, print_step_output, strip_colors):
                 output, rc = await run_alias_async(tool_name, alias_name, input_data)
                 if rc != 0:
                     return
-                step_print_output = step.get('print_output', False)
-                if (step_print_output or print_step_output) and output and output.strip():
+
+                # Only print output if print_output is true for this step or global print_step_output is set
+                should_print = step.get('print_output', False) or print_step_output
+                if should_print and output and output.strip():
                     console.print(f"[bold blue]Output from step {i} ({alias_str}):[/bold blue]")
                     console.print(output)
+
                 if step.get('pipe_output'):
                     last_output = output
                 else:

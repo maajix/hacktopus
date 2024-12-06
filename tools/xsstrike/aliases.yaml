@@ -1,0 +1,7 @@
+aliases:
+  scan:
+    description: "Additional XSS scanning with different payloads"
+    command: "--crawl --params -l 3 {{url}}"
+    variables:
+      - name: target
+        description: "Target URL"

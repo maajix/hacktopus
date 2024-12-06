@@ -1,0 +1,7 @@
+description: "A fast crawler focusing on finding assets and endpoints"
+tags:
+  - crawler
+  - discovery
+  - web
+run_command: "katana"
+accepts_stdin: false
