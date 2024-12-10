@@ -14,18 +14,18 @@ _    __
                               with <3 by @0xasm0d3us           
     
 http://xss-game.appspot.com/level4/frame?timer=FUZZ
-http://xss-game.appspot.com/level1/frame?query=FUZZ
-https://xss-game.appspot.com/?TB_iframe=FUZZ&width=FUZZ&height=FUZZ
-http://xss-game.appspot.com/level5/frame/signup?next=FUZZ
-https://xss-game.appspot.com/level5/frame/confirm?next=FUZZ
 https://xss-game.appspot.com/?utm_source=FUZZ&utm_medium=FUZZ&utm_term=FUZZ
-https://xss-game.appspot.com/?utm_content=FUZZ&utm_medium=FUZZ&utm_source=FUZZ&utm_campaign=FUZZ
-https://xss-game.appspot.com/?utm_source=FUZZ&utm_medium=FUZZ
-https://xss-game.appspot.com/?ref=FUZZ
-https://xss-game.appspot.com/level1/frame?query=FUZZ
-https://xss-game.appspot.com/level5/frame/signup?next=FUZZ
+http://xss-game.appspot.com/level5/frame/signup?next=FUZZ
 https://xss-game.appspot.com/level4/frame?timer=FUZZ
+https://xss-game.appspot.com/level1/frame?query=FUZZ
+https://xss-game.appspot.com/?TB_iframe=FUZZ&width=FUZZ&height=FUZZ
 https://xss-game.appspot.com/?utm_source...dium=FUZZ
+https://xss-game.appspot.com/?ref=FUZZ
+https://xss-game.appspot.com/?utm_content=FUZZ&utm_medium=FUZZ&utm_source=FUZZ&utm_campaign=FUZZ
+https://xss-game.appspot.com/level5/frame/signup?next=FUZZ
+https://xss-game.appspot.com/level5/frame/confirm?next=FUZZ
+http://xss-game.appspot.com/level1/frame?query=FUZZ
+https://xss-game.appspot.com/?utm_source=FUZZ&utm_medium=FUZZ
 
 ✓ arjun:params:
 _
@@ -101,18 +101,18 @@ Stage: find_urls
 
 ✓ grep:urls:
 http://xss-game.appspot.com/level4/frame?timer=FUZZ
-http://xss-game.appspot.com/level1/frame?query=FUZZ
-https://xss-game.appspot.com/?TB_iframe=FUZZ&width=FUZZ&height=FUZZ
-http://xss-game.appspot.com/level5/frame/signup?next=FUZZ
-https://xss-game.appspot.com/level5/frame/confirm?next=FUZZ
 https://xss-game.appspot.com/?utm_source=FUZZ&utm_medium=FUZZ&utm_term=FUZZ
-https://xss-game.appspot.com/?utm_content=FUZZ&utm_medium=FUZZ&utm_source=FUZZ&utm_campaign=FUZZ
-https://xss-game.appspot.com/?utm_source=FUZZ&utm_medium=FUZZ
-https://xss-game.appspot.com/?ref=FUZZ
-https://xss-game.appspot.com/level1/frame?query=FUZZ
-https://xss-game.appspot.com/level5/frame/signup?next=FUZZ
+http://xss-game.appspot.com/level5/frame/signup?next=FUZZ
 https://xss-game.appspot.com/level4/frame?timer=FUZZ
+https://xss-game.appspot.com/level1/frame?query=FUZZ
+https://xss-game.appspot.com/?TB_iframe=FUZZ&width=FUZZ&height=FUZZ
 https://xss-game.appspot.com/?utm_source...dium=FUZZ
+https://xss-game.appspot.com/?ref=FUZZ
+https://xss-game.appspot.com/?utm_content=FUZZ&utm_medium=FUZZ&utm_source=FUZZ&utm_campaign=FUZZ
+https://xss-game.appspot.com/level5/frame/signup?next=FUZZ
+https://xss-game.appspot.com/level5/frame/confirm?next=FUZZ
+http://xss-game.appspot.com/level1/frame?query=FUZZ
+https://xss-game.appspot.com/?utm_source=FUZZ&utm_medium=FUZZ
 https://xss-game.appspot.com/level1/frame?query=asd
 https://xss-game.appspot.com/static/game-frame-styles.css
 https://xss-game.appspot.com/static/game-frame.js
@@ -122,16 +122,16 @@ Stage: find_pattern
 ===================
 
 ✓ gf:patterns:
-http://xss-game.appspot.com/level1/frame?query=FUZZ
 https://xss-game.appspot.com/level1/frame?query=FUZZ
+http://xss-game.appspot.com/level1/frame?query=FUZZ
 https://xss-game.appspot.com/level1/frame?query=asd
 
 Stage: filter_urls
 ==================
 
 ✓ uro:urls:
-http://xss-game.appspot.com/level1/frame?query=FUZZ
 https://xss-game.appspot.com/level1/frame?query=FUZZ
+http://xss-game.appspot.com/level1/frame?query=FUZZ
 
 Stage: httpx
 ============

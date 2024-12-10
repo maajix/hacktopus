@@ -6,25 +6,21 @@ tags:
   - web
   - active_scan
 
-# No variables are needed here since the referenced flow handles its own variables
-
-common:
-  pipe_settings: &default
-    pipe_input: true
-    pipe_output: true
+# Variables that can be shared between flows
+flow_variables:
+  url: "Target URL to scan"  # Description is used in prompts
+  scope: "Scope definition (e.g., *.example.com)"
 
 stages:
   url_gathering:
-    - flow: "get_xss_parameters"
+    - flow: "get_xss_parameters"  # This flow would also use the 'url' flow variable
       description: "Gather potential XSS URLs containing GET parameters"
-      settings:
-        pipe_output: true
 
   exploitation:
     - alias: "gxss:scan"
       description: "Analyze endpoints for XSS vulnerabilities"
-      settings:
-        <<: *default
+      variables:
+        timeout: "{{timeout}}"  # Uses local variable
 
 flow:
   - stage: url_gathering
