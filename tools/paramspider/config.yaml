@@ -4,5 +4,5 @@ tags:
   - parameter-discovery
   - web
   - discovery
-run_command: "mkdir -p results && paramspider"  # Create results directory before running
+run_command: "paramspider"  # Create results directory before running
 accepts_stdin: false

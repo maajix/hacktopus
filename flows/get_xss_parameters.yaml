@@ -3,23 +3,21 @@ variables:
   url: "{{url}}"
 
 steps:
-  - alias: "katana:crawl"
-    pipe_output: true
-    print_output: true
-    # Deep crawling to find endpoints
-
   - parallel:
       combine_output: true    # Combine all discovered parameters
-      fan_out: true
       tasks:
         - alias: "paramspider:discover"
           print_output: true
           # Find hidden parameters through source analysis
 
         - alias: "arjun:params"
-          pipe_input: true
           print_output: true
           # Discover hidden parameters through fuzzing
+
+        - alias: "katana:crawl"
+          pipe_output: true
+          print_output: true
+          # Deep crawling to find endpoints
 
   - alias: "gf:patterns"
     pipe_input: true
