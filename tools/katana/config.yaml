@@ -5,3 +5,4 @@ tags:
   - web
 run_command: "katana"
 accepts_stdin: false
+header_flag: "-H"

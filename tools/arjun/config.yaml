@@ -5,3 +5,4 @@ tags:
   - web
 run_command: "arjun"
 accepts_stdin: true
+header_flag: "--headers"
