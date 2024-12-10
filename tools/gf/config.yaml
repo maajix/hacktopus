@@ -3,5 +3,13 @@ tags:
   - pattern-matching
   - filtering
   - web
+  - xss
+  - lfi
+  - sqli
+  - rce
+  - ssrf
+  - ssti
+  - idor
+  - url_redirect
 run_command: "/home/majix/go/bin/gf"
 accepts_stdin: true

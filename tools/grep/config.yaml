@@ -1,6 +1,7 @@
 description: 'Standard grep command'
 tags:
-  - grep
+  - filtering
+  - pattern-matching
 run_command: 'grep'
 accepts_stdin: true
 header_flag: ''
