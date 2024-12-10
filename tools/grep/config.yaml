@@ -1,0 +1,6 @@
+description: 'Standard grep command'
+tags:
+  - grep
+run_command: 'grep'
+accepts_stdin: true
+header_flag: ''

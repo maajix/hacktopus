@@ -4,6 +4,7 @@ description: "Comprehensive XSS hunting flow that combines crawling, parameter d
 tags:
   - xss
   - web
+  - active_scan
 
 variables:
   url: "{{url}}"
@@ -16,28 +17,32 @@ stages:
     tasks:
       - alias: "paramspider:discover"
         description: "Find hidden parameters through source analysis"
-        settings:
-          print_output: true
 
       - alias: "arjun:params"
         description: "Discover hidden parameters through fuzzing"
-        settings:
-          print_output: true
 
       - alias: "katana:crawl"
         description: "Deep crawling to find endpoints"
-        settings:
-          pipe_output: true
-          print_output: true
 
-  analysis:
+  find_urls:
+    - alias: "grep:urls"
+      description: "Find all URLs"
+
+  find_pattern:
     - alias: "gf:patterns"
       description: "Filter for potentially XSS-vulnerable parameters"
-      settings:
-        pipe_input: true
-        pipe_output: true
-        print_output: true
+
+  filter_urls:
+    - alias: "uro:urls"
+      description: "Filter out duplicate URLs"
+
+  httpx:
+    - alias: "httpx:stdin"
+      description: "Test the found URLs for availability"
 
 flow:
   - stage: discovery
-  - stage: analysis
+  - stage: find_urls
+  - stage: find_pattern
+  - stage: filter_urls
+  - stage: httpx

@@ -3,5 +3,5 @@ tags:
   - pattern-matching
   - filtering
   - web
-run_command: "gf"
+run_command: "/home/majix/go/bin/gf"
 accepts_stdin: true

@@ -1,4 +1,7 @@
 aliases:
-  probe:
+  stdin:
     description: "Check which hosts are alive and gather title/status/tech."
-    command: "-silent -title -status-code -tech-detect"
+    command: "-silent -title -status-code -tech-detect -nfs"
+    variables:
+      - name: url
+        description: "The URL to check the availability"

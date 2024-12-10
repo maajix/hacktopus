@@ -1,0 +1,5 @@
+aliases:
+  scan:
+    description: 'Scan the piped URL for reflected parameters'
+    command: '-v -c 100'
+    variables: []

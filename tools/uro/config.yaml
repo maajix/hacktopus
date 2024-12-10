@@ -1,0 +1,7 @@
+description: 'Filter duplicate URLs'
+tags:
+  - filter
+  - utility
+run_command: 'uro'
+accepts_stdin: true
+header_flag: ''

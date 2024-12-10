@@ -1,0 +1,31 @@
+version: "1.0"
+name: "XSS Fuzzing"
+description: "XSS discovery and validation"
+tags:
+  - xss
+  - web
+  - active_scan
+
+# No variables are needed here since the referenced flow handles its own variables
+
+common:
+  pipe_settings: &default
+    pipe_input: true
+    pipe_output: true
+
+stages:
+  url_gathering:
+    - flow: "get_xss_parameters"
+      description: "Gather potential XSS URLs containing GET parameters"
+      settings:
+        pipe_output: true
+
+  exploitation:
+    - alias: "gxss:scan"
+      description: "Analyze endpoints for XSS vulnerabilities"
+      settings:
+        <<: *default
+
+flow:
+  - stage: url_gathering
+  - stage: exploitation
