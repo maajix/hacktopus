@@ -1,7 +1,7 @@
 aliases:
   discover:
     description: "Find hidden parameters"
-    command: "-d {{url}}"
+    command: "-s -d {{url}}"
     variables:
       - name: url
         description: "Target domain"

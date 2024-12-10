@@ -1,4 +1,5 @@
 import re
+import time
 
 import click
 import yaml
@@ -6,6 +7,7 @@ import os
 import subprocess
 import asyncio
 from rich.console import Console
+from rich.progress import Progress, SpinnerColumn, TextColumn, TimeElapsedColumn
 from rich.table import Table
 from rich.tree import Tree
 import sys
@@ -227,8 +229,9 @@ def flow():
 
 
 @flow.command(name="list")
-def flow_list():
-    """List all available flows."""
+@click.option('--tag', help="Filter flows by tag")
+def flow_list(tag):
+    """List all available flows. Optionally filter by tag."""
     flows_dir = global_config.get("paths", {}).get("flows_dir", "./flows")
     if not os.path.exists(flows_dir):
         console.print("[red]Flows directory not found.[/red]")
@@ -236,14 +239,31 @@ def flow_list():
 
     table = Table(title="Available Flows")
     table.add_column("Flow Name", style="cyan")
+    table.add_column("Tags", style="magenta")
     table.add_column("Description", style="white")
 
     for file_name in os.listdir(flows_dir):
         if file_name.endswith(".yaml"):
             flow_name = file_name[:-5]
             flow_def = load_flow(flow_name)
+
+            # Skip if flow definition couldn't be loaded
+            if not flow_def:
+                continue
+
             desc = flow_def.get("description", "")
-            table.add_row(flow_name, desc)
+            flow_tags = flow_def.get("tags", [])
+
+            # If tag filter is specified, check if flow has matching tag
+            if tag:
+                tag_lower = tag.lower()
+                if not any(tag_lower in t.lower() for t in flow_tags):
+                    continue
+
+            # Format tags for display
+            tags_str = ", ".join(flow_tags) if flow_tags else ""
+
+            table.add_row(flow_name, tags_str, desc)
 
     console.print(table)
 
@@ -319,65 +339,107 @@ def flow_info_command(flow_name):
     console.print(flow_tree)
 
 
-def validate_flow(flow_def, var_values):
-    steps = flow_def.get('steps', [])
+def validate_task(task, var_values):
+    """
+    Validate a single task configuration.
+
+    Args:
+        task (dict): Task configuration to validate
+        var_values (dict): Variables available for the flow
+
+    Returns:
+        tuple: (is_valid, error_message)
+    """
+    # Check if task has required alias
+    if 'alias' not in task:
+        return False, "Task missing 'alias' field"
+
+    alias_str = task['alias']
+    if ':' not in alias_str:
+        return False, f"Alias '{alias_str}' not in 'tool:alias' format"
+
+    tool_name, alias_name = alias_str.split(':', 1)
+
+    # Validate tool exists and load its configuration
     tools_dir = global_config.get("paths", {}).get("tools_dir", "./tools")
+    tool_path = os.path.join(tools_dir, tool_name)
+    if not os.path.isdir(tool_path):
+        return False, f"Tool '{tool_name}' directory not found"
 
-    for i, step in enumerate(steps, start=1):
-        if 'alias' in step:
-            alias_str = step['alias']
-            if ":" not in alias_str:
-                return False, f"Step {i}: Alias '{alias_str}' not in 'tool:alias' format."
+    # Load tool configuration and aliases
+    tool_config, tool_aliases = load_tool(tool_name)
 
-            tool_name, alias_name = alias_str.split(":", 1)
-            tool_path = os.path.join(tools_dir, tool_name)
-            if not os.path.isdir(tool_path):
-                return False, f"Step {i}: Tool '{tool_name}' directory not found."
+    # Check if alias exists for tool
+    if alias_name not in tool_aliases:
+        return False, f"Alias '{alias_name}' not found in tool '{tool_name}'"
 
-            tool_config, tool_aliases = load_tool(tool_name)
-            if alias_name not in tool_aliases:
-                return False, f"Step {i}: Alias '{alias_name}' not found in tool '{tool_name}'."
+    # Validate settings if present
+    if 'settings' in task:
+        settings = task['settings']
 
-            if step.get('pipe_input', False):
-                accepts_stdin = tool_config.get("accepts_stdin", True)
-                if not accepts_stdin:
-                    return False, f"Step {i}: Tool '{tool_name}' does not accept stdin, but pipe_input is true."
+        # Check pipe_input compatibility
+        if settings.get('pipe_input', False):
+            accepts_stdin = tool_config.get("accepts_stdin", True)
+            if not accepts_stdin:
+                return False, f"Tool '{tool_name}' does not accept stdin, but pipe_input is true"
 
-            # Check alias variables
-            alias_def = tool_aliases[alias_name]
-            for var_def in alias_def.get("variables", []):
-                vname = var_def['name']
-                if vname not in var_values:
-                    return False, f"Step {i}: Missing variable '{vname}' required by alias '{alias_str}'."
+        # Validate setting types
+        for setting, value in settings.items():
+            if setting in ['pipe_input', 'pipe_output'] and not isinstance(value, bool):
+                return False, f"Setting '{setting}' must be a boolean"
 
-        elif 'parallel' in step:
-            parallel_def = step['parallel']
-            tasks = parallel_def.get('tasks', [])
-            for t in tasks:
-                alias_str = t['alias']
-                if ":" not in alias_str:
-                    return False, f"Parallel Step {i}: Alias '{alias_str}' not in 'tool:alias' format."
+    # Validate variables if present
+    if 'variables' in task:
+        alias_def = tool_aliases[alias_name]
+        required_vars = {var_def['name'] for var_def in alias_def.get("variables", [])}
 
-                tool_name, alias_name = alias_str.split(":", 1)
-                tool_path = os.path.join(tools_dir, tool_name)
-                if not os.path.isdir(tool_path):
-                    return False, f"Parallel Step {i}: Tool '{tool_name}' directory not found."
+        # Check all required variables are provided
+        task_vars = task['variables']
+        for var_name, var_value in task_vars.items():
+            if var_name not in required_vars:
+                return False, f"Variable '{var_name}' provided but not required by alias '{alias_name}'"
 
-                tool_config, tool_aliases = load_tool(tool_name)
-                if alias_name not in tool_aliases:
-                    return False, f"Parallel Step {i}: Alias '{alias_name}' not found in tool '{tool_name}'."
+        # Check all variables have values
+        for var_name in required_vars:
+            if var_name not in task_vars and var_name not in var_values:
+                return False, f"Required variable '{var_name}' missing for alias '{alias_name}'"
 
-                if t.get('pipe_input', False):
-                    accepts_stdin = tool_config.get("accepts_stdin", True)
-                    if not accepts_stdin:
-                        return False, f"Parallel Step {i}: Tool '{tool_name}' does not accept stdin, but pipe_input is true."
+    return True, None
 
-                # Check alias variables
-                alias_def = tool_aliases[alias_name]
-                for var_def in alias_def.get("variables", []):
-                    vname = var_def['name']
-                    if vname not in var_values:
-                        return False, f"Parallel Step {i}: Missing variable '{vname}' required by alias '{alias_str}'."
+
+def validate_flow(flow_def, var_values):
+    stages = flow_def.get('stages', {})
+    flow_order = flow_def.get('flow', [])
+
+    if not stages:
+        return False, "No stages defined in flow"
+
+    if not flow_order:
+        return False, "No flow order defined"
+
+    for stage_entry in flow_order:
+        if 'stage' not in stage_entry:
+            return False, "Stage entry missing 'stage' field"
+
+        stage_name = stage_entry['stage']
+        if stage_name not in stages:
+            return False, f"Stage '{stage_name}' referenced in flow but not defined in stages"
+
+        stage_def = stages[stage_name]
+
+        if isinstance(stage_def, list):  # Sequential tasks
+            for task in stage_def:
+                valid, msg = validate_task(task, var_values)
+                if not valid:
+                    return False, f"In stage '{stage_name}': {msg}"
+
+        elif stage_def.get('parallel'):  # Parallel tasks
+            for task in stage_def['tasks']:
+                valid, msg = validate_task(task, var_values)
+                if not valid:
+                    return False, f"In parallel stage '{stage_name}': {msg}"
+        else:
+            return False, f"Invalid stage definition for '{stage_name}'"
 
     return True, None
 
@@ -388,13 +450,22 @@ def validate_flow(flow_def, var_values):
 @click.option('--print-step-output', is_flag=True, help="Print each step's output after execution")
 @click.option('--strip-colors', is_flag=True, help="Strip ANSI color codes from output")
 @click.option('--debug', is_flag=True, help="Show stderr output and additional debug information")
+@click.option('--show-full-output', is_flag=True, help="Show full output without truncation")
+@click.option('--save-output', is_flag=True, help="Save output to results directory")
 @click.pass_context
-def flow_run_command(ctx, flow_name, print_step_output, strip_colors, debug):
+def flow_run_command(ctx, flow_name, print_step_output, strip_colors, debug, show_full_output,
+                     save_output):
     """Run a defined flow with error checking and optional color stripping."""
     flow_def = load_flow(flow_name)
     if not flow_def:
         console.print(f"[red]Flow '{flow_name}' not found.[/red]")
         return
+
+    # Create results directory if saving output
+    if save_output:
+        results_dir = "results"
+        os.makedirs(results_dir, exist_ok=True)
+        output_file = os.path.join(results_dir, f"{flow_name}_output.txt")
 
     flow_vars = flow_def.get('variables', {})
 
@@ -441,7 +512,9 @@ def flow_run_command(ctx, flow_name, print_step_output, strip_colors, debug):
         # Add more transformations as needed
         return value
 
-    async def run_alias_async(tool_name, alias_name, input_data=None):
+    async def run_alias_async(tool_name, alias_name, progress, task_id, input_data=None,
+                              print_step_output=False):
+        """Execute a tool alias with real-time progress updates and improved error handling."""
         loop = asyncio.get_event_loop()
         tool_config, tool_aliases = load_tool(tool_name)
         alias_def = tool_aliases[alias_name]
@@ -456,9 +529,6 @@ def flow_run_command(ctx, flow_name, print_step_output, strip_colors, debug):
                 transform_type = var_def['transform']
                 original = processed_vars[vname]
                 processed_vars[vname] = transform_value(original, transform_type)
-                if debug:
-                    console.print(
-                        f"[yellow]Debug - Transforming {vname} using {transform_type}: {original} -> {processed_vars[vname]}[/yellow]")
 
         # Apply processed variables to command template
         for var_def in variables:
@@ -468,118 +538,276 @@ def flow_run_command(ctx, flow_name, print_step_output, strip_colors, debug):
 
         run_command = tool_config.get("run_command")
         full_cmd = f"{run_command} {cmd_template}"
-        console.print(f"[green]Running:[/green] {full_cmd}")
+
+        # Update progress to show Running status
+        progress.update(task_id,
+                        description=f"    [bold blue]→[/bold blue] {tool_name}:{alias_name}\n      \t[bold green]Running[/bold green] {full_cmd}")
 
         def run_proc():
             try:
-                proc = subprocess.run(full_cmd, shell=True, input=input_data, text=True,
-                                      stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                # Add error handling environment variables for common tools
+                env = os.environ.copy()
+                env['PYTHONWARNINGS'] = 'ignore:Unverified HTTPS request'  # Suppress SSL warnings
+                env['REQUESTS_CA_BUNDLE'] = ''  # Disable SSL verification for requests
 
-                # Show stderr in debug mode
-                if debug and proc.stderr and proc.stderr.strip():
-                    console.print(f"[yellow]Debug - stderr from '{alias_name}':[/yellow]")
-                    console.print(proc.stderr)
+                proc = subprocess.run(
+                    full_cmd,
+                    shell=True,
+                    input=input_data,
+                    text=True,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    env=env
+                )
 
                 # Strip colors if requested
                 output = proc.stdout
+                error_output = proc.stderr
                 if strip_colors:
                     output = strip_ansi_codes(output)
+                    error_output = strip_ansi_codes(error_output)
 
-                return output, proc.returncode, proc.stderr
+                return output, proc.returncode, error_output
             except Exception as e:
                 return None, -1, str(e)
 
-        stdout, rc, stderr = await loop.run_in_executor(None, run_proc)
+        try:
+            stdout, rc, stderr = await loop.run_in_executor(None, run_proc)
 
-        if rc != 0:
-            error_msg = stderr if stderr else "Unknown error"
-            console.print(f"[red]Command '{alias_name}' failed with exit code {rc}[/red]")
-            console.print(f"[red]Error: {error_msg}[/red]")
-            if click.confirm("Do you want to continue with the flow?", default=False):
-                return stdout, 0
+            # Clean up error output - remove common noise
+            if stderr:
+                error_lines = stderr.split('\n')
+                cleaned_error_lines = []
+                for line in error_lines:
+                    # Skip common warning messages and tracebacks
+                    if any(skip in line.lower() for skip in [
+                        'warning:', 'traceback', 'file "',
+                        'line ', 'module', 'import',
+                        'certificate', 'insecurerequest',
+                        'urllib3'
+                    ]):
+                        continue
+                    # Keep actual error messages
+                    if line.strip() and not line.startswith(' '):
+                        cleaned_error_lines.append(line.strip())
+                cleaned_stderr = '\n'.join(cleaned_error_lines)
             else:
-                sys.exit(1)
+                cleaned_stderr = ""
 
-        return stdout, 0
+            # Update progress to show Done/Failed status
+            status = "[green]Done[/green]" if rc == 0 else "[red]Failed[/red]"
+            progress.update(task_id,
+                            description=f"    [bold blue]→[/bold blue] {tool_name}:{alias_name}\n      \t{status} {full_cmd}")
 
-    async def run_parallel_tasks(tasks, input_data, fan_out, combine_output, print_step_output):
-        coros = []
-        task_info = []
-        for t in tasks:
-            alias_str = t['alias']
-            pipe_input = t.get('pipe_input', False)
-            t_print_output = t.get('print_output', False)
-            tool_name, alias_name = alias_str.split(":", 1)
-            task_input = input_data if (pipe_input and fan_out) else (
-                input_data if pipe_input else None)
-            coros.append(run_alias_async(tool_name, alias_name, task_input))
-            task_info.append((alias_str, t_print_output))
-
-        results = await asyncio.gather(*coros, return_exceptions=True)
-        outputs = []
-        for i, res in enumerate(results):
-            if isinstance(res, Exception):
-                console.print(f"[red]Parallel task '{task_info[i][0]}' failed: {str(res)}[/red]")
-                if click.confirm("Do you want to continue with the flow?", default=False):
-                    continue
-                else:
-                    return None
-            stdout, rc = res
             if rc != 0:
-                return None
-            outputs.append(stdout)
+                # Show simplified error message
+                error_msg = "Command failed to execute properly" if not cleaned_stderr else cleaned_stderr
+                console.print(f"\n[red]Error running {tool_name}:{alias_name}[/red]")
+                console.print(f"[yellow]Details: {error_msg}[/yellow]")
 
-            # Only print output if print_output is true for this task or global print_step_output is set
-            if stdout and stdout.strip():
-                should_print = task_info[i][1] or print_step_output
-                if should_print:
-                    console.print(
-                        f"[bold blue]Output from parallel task '{task_info[i][0]}':[/bold blue]")
-                    console.print(stdout)
+                if debug:
+                    console.print("\n[dim]Full error output:[/dim]")
+                    console.print(stderr)
 
-        if combine_output:
-            combined = "\n".join(o.strip() for o in outputs if o)
-            return combined
-        return None
+                # Continue with next task instead of asking
+                return {"output": "", "success": False, "tool": f"{tool_name}:{alias_name}"}
+
+            return {"output": stdout, "success": True, "tool": f"{tool_name}:{alias_name}"}
+
+        except Exception as e:
+            # Update progress to show error status
+            progress.update(task_id,
+                            description=f"    [bold blue]→[/bold blue] {tool_name}:{alias_name}\n      \t[red]Failed[/red] {full_cmd}")
+
+            # Continue with next task instead of asking
+            return {"output": "", "success": False, "tool": f"{tool_name}:{alias_name}"}
+
+    def summarize_output(output, tool_name, show_full=False):
+        """Create a summary of tool output based on the tool type."""
+        if not output:
+            return "No output"
+
+        lines = output.strip().split('\n')
+
+        # If show_full_output is True, return complete output
+        if show_full:
+            return output.strip()
+
+        if tool_name.startswith('paramspider:'):
+            params = [line for line in lines if '=' in line]
+            return f"Discovered {len(params)} parameters"
+        elif tool_name.startswith('arjun:'):
+            params = [line for line in lines if line.startswith('[+]')]
+            return '\n'.join(params) if params else "No parameters discovered"
+        elif tool_name.startswith('katana:'):
+            urls = [line for line in lines if line.startswith('http')]
+            return f"Discovered {len(urls)} unique URLs"
+        elif tool_name.startswith('gf:'):
+            matches = [line for line in lines if line.startswith('http')]
+            return f"Found {len(matches)} matches\n" + '\n'.join(matches)
+        return f"{len(lines)} lines of output"
 
     async def run_flow():
-        nonlocal last_output
-        for i, step in enumerate(steps, start=1):
-            if 'alias' in step:
-                alias_str = step['alias']
-                tool_name, alias_name = alias_str.split(":", 1)
-                input_data = last_output if step.get('pipe_input') else None
-                output, rc = await run_alias_async(tool_name, alias_name, input_data)
-                if rc != 0:
-                    return
+        flow_def = load_flow(flow_name)
+        stages = flow_def.get('stages', {})
+        flow_order = flow_def.get('flow', [])
+        total_stages = len(flow_order)
+        last_output = None
+        stage_results = []
+        full_output = [] if save_output else None
 
-                # Only print output if print_output is true for this step or global print_step_output is set
-                should_print = step.get('print_output', False) or print_step_output
-                if should_print and output and output.strip():
-                    console.print(f"[bold blue]Output from step {i} ({alias_str}):[/bold blue]")
-                    console.print(output)
+        if save_output:
+            full_output.append("Flow Execution Summary")
+            full_output.append("=====================")
 
-                if step.get('pipe_output'):
-                    last_output = output
+        with Progress(
+                TextColumn("[progress.description]{task.description}"),
+                TimeElapsedColumn(),
+                console=console,
+                expand=True,
+                transient=True
+        ) as progress:
+            main_task = progress.add_task(
+                description="",
+                total=total_stages
+            )
+
+            for stage_index, stage_entry in enumerate(flow_order, 1):
+                stage_name = stage_entry['stage']
+                stage_def = stages[stage_name]
+                stage_tools_results = []
+
+                # Handle stage description based on type
+                stage_type = 'Parallel' if isinstance(stage_def, dict) and stage_def.get(
+                    'parallel') else 'Sequential'
+                if stage_type == 'Parallel':
+                    stage_desc = stage_def.get('description', '')
                 else:
-                    last_output = None
+                    # For sequential stages, there might not be a description
+                    stage_desc = ''
 
-            elif 'parallel' in step:
-                parallel_def = step['parallel']
-                combine_output = parallel_def.get('combine_output', False)
-                fan_out = parallel_def.get('fan_out', False)
-                tasks = parallel_def.get('tasks', [])
-                input_data = last_output if fan_out else None
-                result = await run_parallel_tasks(tasks, input_data, fan_out, combine_output,
-                                                  print_step_output)
+                # Update main progress with stage information
+                progress.update(
+                    main_task,
+                    description=(
+                        f"[bold cyan]{flow_def.get('name', 'Flow')}[/bold cyan]\n"
+                        f"  Stage {stage_index}/{total_stages}: [yellow]{stage_name}[/yellow] ({stage_type})\n"
+                        f"  {stage_desc if stage_desc else ''}"
+                    )
+                )
 
-                if combine_output and result and result.strip():
-                    console.print("[bold blue]Combined output from parallel step:[/bold blue]")
-                    console.print(result)
+                # Track if any task in the stage succeeded
+                stage_had_success = False
 
-                last_output = result if combine_output else None
+                if isinstance(stage_def, list):  # Sequential tasks
+                    task_ids = []
+                    for task in stage_def:
+                        alias_str = task['alias']
+                        desc = task.get('description', '')
+                        task_id = progress.add_task(
+                            f"    [bold blue]→[/bold blue] {alias_str}\n      {desc}",
+                            total=None
+                        )
+                        task_ids.append((task_id, task))
 
-        console.print("[green]Flow execution completed successfully.[/green]")
+                    for task_id, task in task_ids:
+                        alias_str = task['alias']
+                        tool_name, alias_name = alias_str.split(":", 1)
+                        input_data = last_output if task.get('settings', {}).get(
+                            'pipe_input') else None
+
+                        try:
+                            result = await run_alias_async(tool_name, alias_name, progress, task_id,
+                                                           input_data, print_step_output)
+                            if result['success']:
+                                stage_had_success = True
+                                if task.get('settings', {}).get('pipe_output'):
+                                    last_output = result['output']
+                            stage_tools_results.append(result)
+                        except Exception as e:
+                            console.print(f"[red]Error in task {alias_str}: {str(e)}[/red]")
+                            stage_tools_results.append(
+                                {"output": "", "success": False, "tool": alias_str})
+                            continue
+
+                elif stage_def.get('parallel'):  # Parallel tasks
+                    tasks = stage_def['tasks']
+                    task_ids = []
+
+                    for task in tasks:
+                        alias_str = task['alias']
+                        desc = task.get('description', '')
+                        task_id = progress.add_task(
+                            f"    [bold blue]⇉[/bold blue] {alias_str}\n      {desc}",
+                            total=None
+                        )
+                        task_ids.append((task_id, task))
+
+                    coros = []
+                    for task_id, task in task_ids:
+                        alias_str = task['alias']
+                        tool_name, alias_name = alias_str.split(":", 1)
+                        pipe_input = task.get('pipe_input', False)
+                        task_input = last_output if pipe_input else None
+                        coros.append(
+                            run_alias_async(tool_name, alias_name, progress, task_id, task_input,
+                                            print_step_output)
+                        )
+
+                    try:
+                        results = await asyncio.gather(*coros, return_exceptions=True)
+                        for result in results:
+                            if isinstance(result, Exception):
+                                stage_tools_results.append(
+                                    {"output": "", "success": False, "tool": "Unknown"})
+                            else:
+                                if result['success']:
+                                    stage_had_success = True
+                                stage_tools_results.append(result)
+
+                        if stage_def.get('combine_output') and stage_had_success:
+                            outputs = [r['output'] for r in results if
+                                       isinstance(r, dict) and r['success']]
+                            last_output = "\n".join(filter(None, outputs))
+                    except Exception as e:
+                        console.print(f"[red]Error in parallel execution: {str(e)}[/red]")
+                        continue
+
+                stage_results.append((stage_name, stage_tools_results))
+                progress.update(main_task, advance=1)
+
+            # After all stages complete, show the summary
+            console.print("\n[bold cyan]Flow Execution Summary:[/bold cyan]")
+
+            for stage_name, tools_results in stage_results:
+                console.print(f"\n[bold blue]Stage: {stage_name}[/bold blue]")
+
+                if save_output:
+                    full_output.append(f"\nStage: {stage_name}")
+                    full_output.append("=" * (len(stage_name) + 7))
+
+                for result in tools_results:
+                    if result['success']:
+                        summary = summarize_output(result['output'], result['tool'],
+                                                   show_full_output)
+                        console.print(f"[green]✓[/green] {result['tool']}:")
+                        console.print(f"  {summary}")
+                        if save_output:
+                            full_output.append(f"\n✓ {result['tool']}:")
+                            full_output.append(result['output'].strip())
+                    else:
+                        console.print(f"[red]✗[/red] {result['tool']}: Failed")
+                        if save_output:
+                            full_output.append(f"\n✗ {result['tool']}: Failed")
+
+            # Save output if requested
+            if save_output:
+                try:
+                    with open(output_file, 'w') as f:
+                        f.write('\n'.join(full_output))
+                    console.print(f"\n[green]Output saved to: {output_file}[/green]")
+                except Exception as e:
+                    console.print(f"\n[red]Error saving output: {str(e)}[/red]")
 
     asyncio.run(run_flow())
 

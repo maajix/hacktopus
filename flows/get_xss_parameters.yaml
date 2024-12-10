@@ -1,26 +1,43 @@
+version: "1.0"
+name: "XSS Parameter Hunter"
 description: "Comprehensive XSS hunting flow that combines crawling, parameter discovery, and targeted XSS testing tools for thorough cross-site scripting vulnerability detection."
+tags:
+  - xss
+  - web
+
 variables:
   url: "{{url}}"
 
-steps:
-  - parallel:
-      combine_output: true    # Combine all discovered parameters
-      tasks:
-        - alias: "paramspider:discover"
+stages:
+  discovery:
+    parallel: true
+    description: "Parallel discovery of parameters and endpoints"
+    combine_output: true
+    tasks:
+      - alias: "paramspider:discover"
+        description: "Find hidden parameters through source analysis"
+        settings:
           print_output: true
-          # Find hidden parameters through source analysis
 
-        - alias: "arjun:params"
+      - alias: "arjun:params"
+        description: "Discover hidden parameters through fuzzing"
+        settings:
           print_output: true
-          # Discover hidden parameters through fuzzing
 
-        - alias: "katana:crawl"
+      - alias: "katana:crawl"
+        description: "Deep crawling to find endpoints"
+        settings:
           pipe_output: true
           print_output: true
-          # Deep crawling to find endpoints
 
-  - alias: "gf:patterns"
-    pipe_input: true
-    pipe_output: true
-    print_output: true
-    # Filter for potentially XSS-vulnerable parameters
+  analysis:
+    - alias: "gf:patterns"
+      description: "Filter for potentially XSS-vulnerable parameters"
+      settings:
+        pipe_input: true
+        pipe_output: true
+        print_output: true
+
+flow:
+  - stage: discovery
+  - stage: analysis
