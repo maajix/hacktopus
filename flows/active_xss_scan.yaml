@@ -6,11 +6,6 @@ tags:
   - web
   - active_scan
 
-# Variables that can be shared between flows
-flow_variables:
-  url: "Target URL to scan"  # Description is used in prompts
-  scope: "Scope definition (e.g., *.example.com)"
-
 stages:
   url_gathering:
     - flow: "get_xss_parameters"  # This flow would also use the 'url' flow variable
@@ -19,8 +14,6 @@ stages:
   exploitation:
     - alias: "gxss:scan"
       description: "Analyze endpoints for XSS vulnerabilities"
-      variables:
-        timeout: "{{timeout}}"  # Uses local variable
 
 flow:
   - stage: url_gathering
