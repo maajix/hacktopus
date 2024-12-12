@@ -1,0 +1,8 @@
+description: "Extract endpoints from JavaScript files"
+tags:
+  - javascript
+  - endpoint-discovery
+  - web
+run_command: "/usr/bin/LinkFinder/bin/python /usr/bin/LinkFinder/linkfinder.py"
+accepts_stdin: false
+header_flag: ""

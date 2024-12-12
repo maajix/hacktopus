@@ -1,0 +1,15 @@
+aliases:
+  fetch:
+    description: "Fetch historical URLs for a domain"
+    command: "{{url}} | sort -u"
+    variables:
+      - name: url
+        description: "Target domain"
+        transform: "url_to_domain"
+  filtered:
+    description: "Fetch and filter historical URLs for specific parameters"
+    command: "{{url}} | grep '?' | sort -u"
+    variables:
+      - name: url
+        description: "Target domain"
+        transform: "url_to_domain"

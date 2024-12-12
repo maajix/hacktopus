@@ -1,0 +1,34 @@
+Flow Execution Details
+======================
+
+Stage: discovery
+================
+
+✓ paramspider:discover:
+    - Discovered 4 parameters
+
+✓ arjun:params:
+  [+] Heuristic scanner found 54 parameters: nid, pluralDelimiter, contactType, extTargetAppendNewWindowLabel, mailtoClass, telClass, view_display_id, view_name, addressLocality, telephone, extCssInclude, postalCode, environment_token, url, description, extClass, extFaTelClasses, baseUrl, extInclude, currentLanguage, ajax_path, permissionsHash, tagId, data_layer, extAdditionalMailtoClasses, theme, extFaMailtoClasses, extAdditionalTelClasses, currentPath, extCssExplicit, extAlertText, name, extLabel, mailtoLabel, extExcludeNoreferrer, addressCountry, environment_id, extExclude, extFaLinkClasses, libraries, width, allowlist_classes, telLabel, view_args, email, extAdditionalLinkClasses, blocklist_classes, pathPrefix, extCssExclude, extIconPlacement, view_dom_id, streetAddress, view_path, height
+
+✓ katana:crawl:
+    - Discovered 741 unique URLs
+
+✓ waybackurls:fetch:
+    - 825 lines of output
+
+Stage: remove_duplicates
+========================
+
+✓ uro:urls:
+    - 665 lines of output
+
+Stage: check_alive
+==================
+
+✗ httpx:stdin: Failed
+
+Stage: find_xss_patterns
+========================
+
+✓ gf:patterns:
+  No output

@@ -1,0 +1,4 @@
+aliases:
+  first-item:
+    description: 'Choose the first item'
+    command: '1'

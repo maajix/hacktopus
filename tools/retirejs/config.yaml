@@ -1,0 +1,9 @@
+description: "Scan JavaScript files for vulnerabilities and endpoints"
+tags:
+  - javascript
+  - security
+  - web
+  - static-analysis
+run_command: "retire"
+accepts_stdin: true
+header_flag: ""

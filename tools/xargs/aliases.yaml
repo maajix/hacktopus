@@ -1,0 +1,7 @@
+aliases:
+  wget_js_only:
+    description: "Download JavaScript files from stdin URLs"
+    command: "wget {} -P {{output_dir}}"
+    variables:
+      - name: output_dir
+        description: "Output dir where the files will be saved to"

@@ -1,0 +1,7 @@
+description: "Download files from URLs"
+tags:
+  - download
+  - web
+run_command: "xargs"
+accepts_stdin: true
+header_flag: "--header"

@@ -1,0 +1,8 @@
+aliases:
+  fetch:
+    description: 'Fetch known URLs'
+    command: '{{url}} | gau'
+    variables:
+      - name: url
+        description: "URL of the target"
+        transform: url_to_domain

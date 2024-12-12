@@ -1,0 +1,8 @@
+aliases:
+  analyze:
+    description: "Analyze JavaScript files for vulnerabilities"
+    command: "--path {{output_dir}} --outputformat json --deep"
+    variables:
+      - name: output_dir
+        description: "Directory containing JavaScript files"
+        default: "js-files"

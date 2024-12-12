@@ -1,0 +1,9 @@
+description: "Fetch URLs from Wayback Machine for a domain"
+tags:
+  - recon
+  - web
+  - historical
+  - passive
+run_command: "waybackurls"
+accepts_stdin: false
+header_flag: ""

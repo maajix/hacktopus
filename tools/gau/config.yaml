@@ -1,0 +1,9 @@
+description: "Fetch known URLs from AlienVaults Open Threat Exchange, the Wayback Machine, and Common Craw"
+tags:
+  - recon
+  - web
+  - historical
+  - passive
+run_command: 'printf'
+accepts_stdin: true
+header_flag: ''

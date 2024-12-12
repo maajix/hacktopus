@@ -1,0 +1,23 @@
+aliases:
+  extract:
+    description: "Extract endpoints from JavaScript files"
+    command: "-i {{input_dir}} -o {{output}} -d"
+    variables:
+      - name: input_dir
+        description: "Directory containing JavaScript files"
+        default: "js-files"
+      - name: output
+        description: "Output file path"
+        default: "linkfinder-results.html"
+  custom-extract:
+    description: "Extract endpoints with custom regex patterns"
+    command: "-i {{input_dir}} -o {{output}} -d -r {{regex_file}}"
+    variables:
+      - name: input_dir
+        description: "Directory containing JavaScript files"
+        default: "js-files"
+      - name: output
+        description: "Output file path"
+        default: "linkfinder-results.html"
+      - name: regex_file
+        description: "Custom regex rules file"
