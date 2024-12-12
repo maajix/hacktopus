@@ -1,5 +1,5 @@
-Flow Execution Summary
-=====================
+Flow Execution Details
+======================
 
 Stage: discovery
 ================
@@ -13,19 +13,72 @@ _    __
 
                               with <3 by @0xasm0d3us           
     
-https://xss-game.appspot.com/level4/frame?timer=FUZZ
-https://xss-game.appspot.com/?TB_iframe=FUZZ&width=FUZZ&height=FUZZ
-http://xss-game.appspot.com/level4/frame?timer=FUZZ
-https://xss-game.appspot.com/?ref=FUZZ
-https://xss-game.appspot.com/?utm_source=FUZZ&utm_medium=FUZZ
-http://xss-game.appspot.com/level1/frame?query=FUZZ
-https://xss-game.appspot.com/?utm_source=FUZZ&utm_medium=FUZZ&utm_term=FUZZ
-https://xss-game.appspot.com/level5/frame/signup?next=FUZZ
-https://xss-game.appspot.com/?utm_content=FUZZ&utm_medium=FUZZ&utm_source=FUZZ&utm_campaign=FUZZ
-https://xss-game.appspot.com/?utm_source...dium=FUZZ
-http://xss-game.appspot.com/level5/frame/signup?next=FUZZ
-https://xss-game.appspot.com/level1/frame?query=FUZZ
-https://xss-game.appspot.com/level5/frame/confirm?next=FUZZ
+http://testphp.vulnweb.com/?file=FUZZ
+http://testphp.vulnweb.com/comment.php?pid=FUZZ
+http://testphp.vulnweb.com/login.php?id=FUZZ&NtFH=FUZZ
+http://testphp.vulnweb.com/showimage.php?%EF%AC%81le=FUZZ&size=FUZZ
+http://testphp.vulnweb.com/redir.php?r=FUZZ&view=FUZZ&task=FUZZ&id=FUZZ
+http://testphp.vulnweb.com/hpp/params.php?aaaa%2F=FUZZ&p=FUZZ
+http://testphp.vulnweb.com/artists.php?artist+=FUZZ
+http://testphp.vulnweb.com/listproducts.php?artist=FUZZ&asdf=FUZZ&cat=FUZZ
+http://testphp.vulnweb.com/categories.php/listproducts.php?cat=FUZZ
+http://testphp.vulnweb.com/showimage.php?%EF%AC%81le=FUZZ
+http://testphp.vulnweb.com/artists.php?file=FUZZ
+http://testphp.vulnweb.com/showimage.php?file=FUZZ&size=FUZZ
+http://testphp.vulnweb.com/artist.php?artist=FUZZ
+http://testphp.vulnweb.com/artists.php?artist=FUZZ
+http://testphp.vulnweb.com/pictures/credentials.txtA01http://testphp.vulnweb.com/product.php?pic=FUZZ
+http://testphp.vulnweb.com/hpp/index.php?pp=FUZZ
+http://testphp.vulnweb.com/hpp/params.php?aaaa%2F=FUZZ&p=FUZZ&pp=FUZZ
+http://testphp.vulnweb.com/product.php?pic=FUZZ&tdRI=FUZZ
+http://testphp.vulnweb.com/?cmd=FUZZ
+http://testphp.vulnweb.com/hpp/params.php?p=FUZZ&pp=FUZZ
+http://testphp.vulnweb.com/AJAX/infoartist.php?id=FUZZ&DUMM=FUZZ
+http://testphp.vulnweb.com/hpp/?pp=FUZZ
+http://testphp.vulnweb.com/artists.php?+artist=FUZZ
+http://testphp.vulnweb.com/search.php?test=FUZZ&cat=FUZZ&ppl=FUZZ
+http://testphp.vulnweb.com/Mod_Rewrite_Shop/details.php?id=FUZZ&mjqN=FUZZ
+http://testphp.vulnweb.com/index.php?id=FUZZ&user=FUZZ
+http://testphp.vulnweb.com/?id=FUZZ
+http://testphp.vulnweb.com/AJAX/infocateg.php?id=FUZZ
+http://testphp.vulnweb.com/hpp/params.php?p=FUZZ
+http://testphp.vulnweb.com/hpp/params.php?aaaa%2F=FUZZ
+http://testphp.vulnweb.com/admin/?C=FUZZ
+http://testphp.vulnweb.com/comment.php?aid=FUZZ
+http://testphp.vulnweb.com/bxss/vuln.php?id=FUZZ
+http://testphp.vulnweb.com/artists.php?%CB%93%E2%86%92artist=FUZZ
+http://testphp.vulnweb.com/?%3Fid=FUZZ
+http://testphp.vulnweb.com/Mod_Rewrite_Shop/rate.php?id=FUZZ
+http://testphp.vulnweb.com/listproducts.php?artist=FUZZ
+http://testphp.vulnweb.com/showimage.php?file=FUZZ
+http://testphp.vulnweb.com/listproducts.php?cat=FUZZ
+http://testphp.vulnweb.com/product.php?pic=FUZZ&hkNi=FUZZ
+http://testphp.vulnweb.com/search.php?test=FUZZ
+http://testphp.vulnweb.com/?input=FUZZ
+http://testphp.vulnweb.com/listproducts.php?artist=FUZZ&amp%3Basdf=FUZZ&amp%3Bcat=FUZZ
+http://testphp.vulnweb.com/index.php?%25id%25=FUZZ&user=FUZZ
+http://testphp.vulnweb.com/login.php?id=FUZZ
+http://testphp.vulnweb.com/login.php?id=FUZZ&SlFY=FUZZ
+http://testphp.vulnweb.com/AJAX/infoartist.php?id=FUZZ
+http://testphp.vulnweb.com/AJAX/infoartist.php?id=FUZZ&YVeN=FUZZ
+http://testphp.vulnweb.com/product.php?pic=FUZZ&otIR=FUZZ
+http://testphp.vulnweb.com/product.php?pic=FUZZ
+http://testphp.vulnweb.com/redir.php?r=FUZZ
+http://testphp.vulnweb.com/secured/phpinfo.php?=FUZZ
+http://testphp.vulnweb.com/?source=FUZZ
+http://testphp.vulnweb.com/%CB%93%E2%86%92listproducts.php?cat=FUZZ
+http://testphp.vulnweb.com/AJAX/infoartist.php?id=FUZZ&fYij=FUZZ
+http://testphp.vulnweb.com/artists.php?oqXf=FUZZ
+http://testphp.vulnweb.com/listproducts.php?id=FUZZ
+http://testphp.vulnweb.com/Mod_Rewrite_Shop/details.php?id=FUZZ
+http://testphp.vulnweb.com/?trk=FUZZ
+http://testphp.vulnweb.com/Mod_Rewrite_Shop/buy.php?id=FUZZ
+http://testphp.vulnweb.com/index.zipA01http://testphp.vulnweb.com/listproducts.php?artist=FUZZ
+http://testphp.vulnweb.com/search.php?cookie=FUZZ
+http://testphp.vulnweb.com/redir.php?r=FUZZ&user=FUZZ
+http://testphp.vulnweb.com/listproducts.php?cat=FUZZ&zfdfasdf=FUZZ
+http://testphp.vulnweb.com/?%3Fcmd=FUZZ
+http://testphp.vulnweb.com/%CB%93%E2%86%92artists.php?artist=FUZZ
 
 ✓ arjun:params:
 _
@@ -36,6 +89,7 @@ _
 [*] Probing the target for stability
 [*] Analysing HTTP response for anomalies
 [*] Analysing HTTP response for potential parameter names
+[+] Heuristic scanner found 2 parameters: goButton, searchFor
 [*] Logicforcing the URL endpoint
 [!] Processing chunks: 1/51    
 [!] Processing chunks: 2/51    
@@ -88,54 +142,345 @@ _
 [!] Processing chunks: 49/51    
 [!] Processing chunks: 50/51    
 [!] Processing chunks: 51/51    
-[!] No parameters were discovered.
+[!] Processing chunks: 1/2     
+[!] Processing chunks: 2/2     
+[!] Processing chunks: 1/2     
+[!] Processing chunks: 2/2     
+[!] Processing chunks: 1/2     
+[!] Processing chunks: 2/2     
+[!] Processing chunks: 1/2     
+[!] Processing chunks: 2/2     
+[!] Processing chunks: 1/2     
+[!] Processing chunks: 2/2     
+[!] Processing chunks: 1/2     
+[!] Processing chunks: 2/2     
+[!] Processing chunks: 1/2     
+[!] Processing chunks: 2/2     
+[!] Processing chunks: 1/2     
+[!] Processing chunks: 2/2     
+[✓] parameter detected: searchFor, based on: body length
+[+] Parameters found: searchFor
 
 ✓ katana:crawl:
-https://xss-game.appspot.com/level1/frame?query=asd
-https://xss-game.appspot.com/static/game-frame.js
-https://xss-game.appspot.com/static/game-frame-styles.css
-https://xss-game.appspot.com/level1/frame?
+http://testphp.vulnweb.com/search.php?test=query
+http://testphp.vulnweb.com/high
+http://testphp.vulnweb.com/privacy.php
+http://testphp.vulnweb.com/style.css
+http://testphp.vulnweb.com/disclaimer.php
+http://testphp.vulnweb.com/login.php
+http://testphp.vulnweb.com/categories.php
+http://testphp.vulnweb.com/guestbook.php
+http://testphp.vulnweb.com/AJAX/index.php
+http://testphp.vulnweb.com/index.php
+http://testphp.vulnweb.com/cart.php
+http://testphp.vulnweb.com/artists.php
+http://testphp.vulnweb.com/Templates/main_dynamic_template.dwt.php
+http://testphp.vulnweb.com/userinfo.php
+http://testphp.vulnweb.com/Templates/high
+http://testphp.vulnweb.com/showimage.php?file=
+http://testphp.vulnweb.com/hpp/
+http://testphp.vulnweb.com/Mod_Rewrite_Shop/
+http://testphp.vulnweb.com/redir.php
+http://testphp.vulnweb.com/search.php?test=query
+http://testphp.vulnweb.com/artists.php?artist=1
+http://testphp.vulnweb.com/artists.php?artist=2
+http://testphp.vulnweb.com/AJAX/showxml.php
+http://testphp.vulnweb.com/AJAX/styles.css
+http://testphp.vulnweb.com/listproducts.php?cat=4
+http://testphp.vulnweb.com/listproducts.php?cat=2
+http://testphp.vulnweb.com/comment.php
+http://testphp.vulnweb.com/artists.php?artist=3
+http://testphp.vulnweb.com/signup.php
+http://testphp.vulnweb.com/listproducts.php?cat=3
+http://testphp.vulnweb.com/listproducts.php?cat=1
+http://testphp.vulnweb.com/showimage.php?file=./pictures/1.jpg&size=160
+http://testphp.vulnweb.com/showimage.php?file=./pictures/3.jpg&size=160
+http://testphp.vulnweb.com/product.php?pic=2
+http://testphp.vulnweb.com/showimage.php?file=./pictures/2.jpg&size=160
+http://testphp.vulnweb.com/showimage.php?file=./pictures/3.jpg
+http://testphp.vulnweb.com/product.php?pic=7
+http://testphp.vulnweb.com/showimage.php?file=./pictures/5.jpg&size=160
+http://testphp.vulnweb.com/showimage.php?file=./pictures/6.jpg
+http://testphp.vulnweb.com/Mod_Rewrite_Shop/Details/network-attached-storage-dlink/1/
+http://testphp.vulnweb.com/showimage.php?file=./pictures/7.jpg
+http://testphp.vulnweb.com/listproducts.php?artist=3
+http://testphp.vulnweb.com/hj/var/www/showimage.php
+http://testphp.vulnweb.com/secured/newuser.php
+http://testphp.vulnweb.com/product.php?pic=4
+http://testphp.vulnweb.com/product.php?pic=1
+http://testphp.vulnweb.com/showimage.php?file=./pictures/6.jpg&size=160
+http://testphp.vulnweb.com/product.php?pic=3
+http://testphp.vulnweb.com/showimage.php?file=./pictures/1.jpg
+http://testphp.vulnweb.com/Mod_Rewrite_Shop/Details/color-printer/3/
+http://testphp.vulnweb.com/product.php?pic=5
+http://testphp.vulnweb.com/Mod_Rewrite_Shop/Details/web-camera-a4tech/2/
+http://testphp.vulnweb.com/hpp/?pp=12
+http://testphp.vulnweb.com/showimage.php?file=./pictures/7.jpg&size=160
+http://testphp.vulnweb.com/showimage.php?file=./pictures/4.jpg&size=160
+http://testphp.vulnweb.com/product.php?pic=6
+http://testphp.vulnweb.com/listproducts.php?artist=1
+http://testphp.vulnweb.com/showimage.php?file=./pictures/2.jpg
+http://testphp.vulnweb.com/listproducts.php?artist=2
+http://testphp.vulnweb.com/showimage.php?file=./pictures/4.jpg
+http://testphp.vulnweb.com/showimage.php?file=./pictures/5.jpg
+http://testphp.vulnweb.com/secured/style.css
+http://testphp.vulnweb.com/hpp/params.php?p=valid&pp=12
+http://testphp.vulnweb.com/Mod_Rewrite_Shop/BuyProduct-2/
+http://testphp.vulnweb.com/Mod_Rewrite_Shop/RateProduct-2.html
+http://testphp.vulnweb.com/Mod_Rewrite_Shop/BuyProduct-3/
+http://testphp.vulnweb.com/Mod_Rewrite_Shop/RateProduct-3.html
+http://testphp.vulnweb.com/Mod_Rewrite_Shop/BuyProduct-1/
+http://testphp.vulnweb.com/Mod_Rewrite_Shop/RateProduct-1.html
 
 Stage: find_urls
 ================
 
 ✓ grep:urls:
-https://xss-game.appspot.com/level4/frame?timer=FUZZ
-https://xss-game.appspot.com/?TB_iframe=FUZZ&width=FUZZ&height=FUZZ
-http://xss-game.appspot.com/level4/frame?timer=FUZZ
-https://xss-game.appspot.com/?ref=FUZZ
-https://xss-game.appspot.com/?utm_source=FUZZ&utm_medium=FUZZ
-http://xss-game.appspot.com/level1/frame?query=FUZZ
-https://xss-game.appspot.com/?utm_source=FUZZ&utm_medium=FUZZ&utm_term=FUZZ
-https://xss-game.appspot.com/level5/frame/signup?next=FUZZ
-https://xss-game.appspot.com/?utm_content=FUZZ&utm_medium=FUZZ&utm_source=FUZZ&utm_campaign=FUZZ
-https://xss-game.appspot.com/?utm_source...dium=FUZZ
-http://xss-game.appspot.com/level5/frame/signup?next=FUZZ
-https://xss-game.appspot.com/level1/frame?query=FUZZ
-https://xss-game.appspot.com/level5/frame/confirm?next=FUZZ
-https://xss-game.appspot.com/level1/frame?query=asd
-https://xss-game.appspot.com/static/game-frame.js
-https://xss-game.appspot.com/static/game-frame-styles.css
-https://xss-game.appspot.com/level1/frame?
+http://testphp.vulnweb.com/?file=FUZZ
+http://testphp.vulnweb.com/comment.php?pid=FUZZ
+http://testphp.vulnweb.com/login.php?id=FUZZ&NtFH=FUZZ
+http://testphp.vulnweb.com/showimage.php?%EF%AC%81le=FUZZ&size=FUZZ
+http://testphp.vulnweb.com/redir.php?r=FUZZ&view=FUZZ&task=FUZZ&id=FUZZ
+http://testphp.vulnweb.com/hpp/params.php?aaaa%2F=FUZZ&p=FUZZ
+http://testphp.vulnweb.com/artists.php?artist+=FUZZ
+http://testphp.vulnweb.com/listproducts.php?artist=FUZZ&asdf=FUZZ&cat=FUZZ
+http://testphp.vulnweb.com/categories.php/listproducts.php?cat=FUZZ
+http://testphp.vulnweb.com/showimage.php?%EF%AC%81le=FUZZ
+http://testphp.vulnweb.com/artists.php?file=FUZZ
+http://testphp.vulnweb.com/showimage.php?file=FUZZ&size=FUZZ
+http://testphp.vulnweb.com/artist.php?artist=FUZZ
+http://testphp.vulnweb.com/artists.php?artist=FUZZ
+http://testphp.vulnweb.com/pictures/credentials.txtA01http://testphp.vulnweb.com/product.php?pic=FUZZ
+http://testphp.vulnweb.com/hpp/index.php?pp=FUZZ
+http://testphp.vulnweb.com/hpp/params.php?aaaa%2F=FUZZ&p=FUZZ&pp=FUZZ
+http://testphp.vulnweb.com/product.php?pic=FUZZ&tdRI=FUZZ
+http://testphp.vulnweb.com/?cmd=FUZZ
+http://testphp.vulnweb.com/hpp/params.php?p=FUZZ&pp=FUZZ
+http://testphp.vulnweb.com/AJAX/infoartist.php?id=FUZZ&DUMM=FUZZ
+http://testphp.vulnweb.com/hpp/?pp=FUZZ
+http://testphp.vulnweb.com/artists.php?+artist=FUZZ
+http://testphp.vulnweb.com/search.php?test=FUZZ&cat=FUZZ&ppl=FUZZ
+http://testphp.vulnweb.com/Mod_Rewrite_Shop/details.php?id=FUZZ&mjqN=FUZZ
+http://testphp.vulnweb.com/index.php?id=FUZZ&user=FUZZ
+http://testphp.vulnweb.com/?id=FUZZ
+http://testphp.vulnweb.com/AJAX/infocateg.php?id=FUZZ
+http://testphp.vulnweb.com/hpp/params.php?p=FUZZ
+http://testphp.vulnweb.com/hpp/params.php?aaaa%2F=FUZZ
+http://testphp.vulnweb.com/admin/?C=FUZZ
+http://testphp.vulnweb.com/comment.php?aid=FUZZ
+http://testphp.vulnweb.com/bxss/vuln.php?id=FUZZ
+http://testphp.vulnweb.com/artists.php?%CB%93%E2%86%92artist=FUZZ
+http://testphp.vulnweb.com/?%3Fid=FUZZ
+http://testphp.vulnweb.com/Mod_Rewrite_Shop/rate.php?id=FUZZ
+http://testphp.vulnweb.com/listproducts.php?artist=FUZZ
+http://testphp.vulnweb.com/showimage.php?file=FUZZ
+http://testphp.vulnweb.com/listproducts.php?cat=FUZZ
+http://testphp.vulnweb.com/product.php?pic=FUZZ&hkNi=FUZZ
+http://testphp.vulnweb.com/search.php?test=FUZZ
+http://testphp.vulnweb.com/?input=FUZZ
+http://testphp.vulnweb.com/listproducts.php?artist=FUZZ&amp%3Basdf=FUZZ&amp%3Bcat=FUZZ
+http://testphp.vulnweb.com/index.php?%25id%25=FUZZ&user=FUZZ
+http://testphp.vulnweb.com/login.php?id=FUZZ
+http://testphp.vulnweb.com/login.php?id=FUZZ&SlFY=FUZZ
+http://testphp.vulnweb.com/AJAX/infoartist.php?id=FUZZ
+http://testphp.vulnweb.com/AJAX/infoartist.php?id=FUZZ&YVeN=FUZZ
+http://testphp.vulnweb.com/product.php?pic=FUZZ&otIR=FUZZ
+http://testphp.vulnweb.com/product.php?pic=FUZZ
+http://testphp.vulnweb.com/redir.php?r=FUZZ
+http://testphp.vulnweb.com/secured/phpinfo.php?=FUZZ
+http://testphp.vulnweb.com/?source=FUZZ
+http://testphp.vulnweb.com/%CB%93%E2%86%92listproducts.php?cat=FUZZ
+http://testphp.vulnweb.com/AJAX/infoartist.php?id=FUZZ&fYij=FUZZ
+http://testphp.vulnweb.com/artists.php?oqXf=FUZZ
+http://testphp.vulnweb.com/listproducts.php?id=FUZZ
+http://testphp.vulnweb.com/Mod_Rewrite_Shop/details.php?id=FUZZ
+http://testphp.vulnweb.com/?trk=FUZZ
+http://testphp.vulnweb.com/Mod_Rewrite_Shop/buy.php?id=FUZZ
+http://testphp.vulnweb.com/index.zipA01http://testphp.vulnweb.com/listproducts.php?artist=FUZZ
+http://testphp.vulnweb.com/search.php?cookie=FUZZ
+http://testphp.vulnweb.com/redir.php?r=FUZZ&user=FUZZ
+http://testphp.vulnweb.com/listproducts.php?cat=FUZZ&zfdfasdf=FUZZ
+http://testphp.vulnweb.com/?%3Fcmd=FUZZ
+http://testphp.vulnweb.com/%CB%93%E2%86%92artists.php?artist=FUZZ
+http://testphp.vulnweb.com/search.php?test=query
+http://testphp.vulnweb.com/high
+http://testphp.vulnweb.com/privacy.php
+http://testphp.vulnweb.com/style.css
+http://testphp.vulnweb.com/disclaimer.php
+http://testphp.vulnweb.com/login.php
+http://testphp.vulnweb.com/categories.php
+http://testphp.vulnweb.com/guestbook.php
+http://testphp.vulnweb.com/AJAX/index.php
+http://testphp.vulnweb.com/index.php
+http://testphp.vulnweb.com/cart.php
+http://testphp.vulnweb.com/artists.php
+http://testphp.vulnweb.com/Templates/main_dynamic_template.dwt.php
+http://testphp.vulnweb.com/userinfo.php
+http://testphp.vulnweb.com/Templates/high
+http://testphp.vulnweb.com/showimage.php?file=
+http://testphp.vulnweb.com/hpp/
+http://testphp.vulnweb.com/Mod_Rewrite_Shop/
+http://testphp.vulnweb.com/redir.php
+http://testphp.vulnweb.com/search.php?test=query
+http://testphp.vulnweb.com/artists.php?artist=1
+http://testphp.vulnweb.com/artists.php?artist=2
+http://testphp.vulnweb.com/AJAX/showxml.php
+http://testphp.vulnweb.com/AJAX/styles.css
+http://testphp.vulnweb.com/listproducts.php?cat=4
+http://testphp.vulnweb.com/listproducts.php?cat=2
+http://testphp.vulnweb.com/comment.php
+http://testphp.vulnweb.com/artists.php?artist=3
+http://testphp.vulnweb.com/signup.php
+http://testphp.vulnweb.com/listproducts.php?cat=3
+http://testphp.vulnweb.com/listproducts.php?cat=1
+http://testphp.vulnweb.com/showimage.php?file=./pictures/1.jpg&size=160
+http://testphp.vulnweb.com/showimage.php?file=./pictures/3.jpg&size=160
+http://testphp.vulnweb.com/product.php?pic=2
+http://testphp.vulnweb.com/showimage.php?file=./pictures/2.jpg&size=160
+http://testphp.vulnweb.com/showimage.php?file=./pictures/3.jpg
+http://testphp.vulnweb.com/product.php?pic=7
+http://testphp.vulnweb.com/showimage.php?file=./pictures/5.jpg&size=160
+http://testphp.vulnweb.com/showimage.php?file=./pictures/6.jpg
+http://testphp.vulnweb.com/Mod_Rewrite_Shop/Details/network-attached-storage-dlink/1/
+http://testphp.vulnweb.com/showimage.php?file=./pictures/7.jpg
+http://testphp.vulnweb.com/listproducts.php?artist=3
+http://testphp.vulnweb.com/hj/var/www/showimage.php
+http://testphp.vulnweb.com/secured/newuser.php
+http://testphp.vulnweb.com/product.php?pic=4
+http://testphp.vulnweb.com/product.php?pic=1
+http://testphp.vulnweb.com/showimage.php?file=./pictures/6.jpg&size=160
+http://testphp.vulnweb.com/product.php?pic=3
+http://testphp.vulnweb.com/showimage.php?file=./pictures/1.jpg
+http://testphp.vulnweb.com/Mod_Rewrite_Shop/Details/color-printer/3/
+http://testphp.vulnweb.com/product.php?pic=5
+http://testphp.vulnweb.com/Mod_Rewrite_Shop/Details/web-camera-a4tech/2/
+http://testphp.vulnweb.com/hpp/?pp=12
+http://testphp.vulnweb.com/showimage.php?file=./pictures/7.jpg&size=160
+http://testphp.vulnweb.com/showimage.php?file=./pictures/4.jpg&size=160
+http://testphp.vulnweb.com/product.php?pic=6
+http://testphp.vulnweb.com/listproducts.php?artist=1
+http://testphp.vulnweb.com/showimage.php?file=./pictures/2.jpg
+http://testphp.vulnweb.com/listproducts.php?artist=2
+http://testphp.vulnweb.com/showimage.php?file=./pictures/4.jpg
+http://testphp.vulnweb.com/showimage.php?file=./pictures/5.jpg
+http://testphp.vulnweb.com/secured/style.css
+http://testphp.vulnweb.com/hpp/params.php?p=valid&pp=12
+http://testphp.vulnweb.com/Mod_Rewrite_Shop/BuyProduct-2/
+http://testphp.vulnweb.com/Mod_Rewrite_Shop/RateProduct-2.html
+http://testphp.vulnweb.com/Mod_Rewrite_Shop/BuyProduct-3/
+http://testphp.vulnweb.com/Mod_Rewrite_Shop/RateProduct-3.html
+http://testphp.vulnweb.com/Mod_Rewrite_Shop/BuyProduct-1/
+http://testphp.vulnweb.com/Mod_Rewrite_Shop/RateProduct-1.html
 
 Stage: find_pattern
 ===================
 
 ✓ gf:patterns:
-http://xss-game.appspot.com/level1/frame?query=FUZZ
-https://xss-game.appspot.com/level1/frame?query=FUZZ
-https://xss-game.appspot.com/level1/frame?query=asd
+http://testphp.vulnweb.com/comment.php?pid=FUZZ
+http://testphp.vulnweb.com/login.php?id=FUZZ&NtFH=FUZZ
+http://testphp.vulnweb.com/redir.php?r=FUZZ&view=FUZZ&task=FUZZ&id=FUZZ
+http://testphp.vulnweb.com/hpp/params.php?aaaa%2F=FUZZ&p=FUZZ
+http://testphp.vulnweb.com/hpp/index.php?pp=FUZZ
+http://testphp.vulnweb.com/hpp/params.php?aaaa%2F=FUZZ&p=FUZZ&pp=FUZZ
+http://testphp.vulnweb.com/hpp/params.php?p=FUZZ&pp=FUZZ
+http://testphp.vulnweb.com/AJAX/infoartist.php?id=FUZZ&DUMM=FUZZ
+http://testphp.vulnweb.com/hpp/?pp=FUZZ
+http://testphp.vulnweb.com/search.php?test=FUZZ&cat=FUZZ&ppl=FUZZ
+http://testphp.vulnweb.com/Mod_Rewrite_Shop/details.php?id=FUZZ&mjqN=FUZZ
+http://testphp.vulnweb.com/index.php?id=FUZZ&user=FUZZ
+http://testphp.vulnweb.com/?id=FUZZ
+http://testphp.vulnweb.com/AJAX/infocateg.php?id=FUZZ
+http://testphp.vulnweb.com/hpp/params.php?p=FUZZ
+http://testphp.vulnweb.com/comment.php?aid=FUZZ
+http://testphp.vulnweb.com/bxss/vuln.php?id=FUZZ
+http://testphp.vulnweb.com/?%3Fid=FUZZ
+http://testphp.vulnweb.com/Mod_Rewrite_Shop/rate.php?id=FUZZ
+http://testphp.vulnweb.com/login.php?id=FUZZ
+http://testphp.vulnweb.com/login.php?id=FUZZ&SlFY=FUZZ
+http://testphp.vulnweb.com/AJAX/infoartist.php?id=FUZZ
+http://testphp.vulnweb.com/AJAX/infoartist.php?id=FUZZ&YVeN=FUZZ
+http://testphp.vulnweb.com/AJAX/infoartist.php?id=FUZZ&fYij=FUZZ
+http://testphp.vulnweb.com/listproducts.php?id=FUZZ
+http://testphp.vulnweb.com/Mod_Rewrite_Shop/details.php?id=FUZZ
+http://testphp.vulnweb.com/Mod_Rewrite_Shop/buy.php?id=FUZZ
+http://testphp.vulnweb.com/hpp/?pp=12
+http://testphp.vulnweb.com/hpp/params.php?p=valid&pp=12
 
 Stage: filter_urls
 ==================
 
 ✓ uro:urls:
-http://xss-game.appspot.com/level1/frame?query=FUZZ
-https://xss-game.appspot.com/level1/frame?query=FUZZ
+http://testphp.vulnweb.com/comment.php?pid=FUZZ
+http://testphp.vulnweb.com/comment.php?aid=FUZZ
+http://testphp.vulnweb.com/login.php?id=FUZZ&NtFH=FUZZ
+http://testphp.vulnweb.com/login.php?id=FUZZ&SlFY=FUZZ
+http://testphp.vulnweb.com/redir.php?r=FUZZ&view=FUZZ&task=FUZZ&id=FUZZ
+http://testphp.vulnweb.com/hpp/params.php?aaaa%2F=FUZZ&p=FUZZ
+http://testphp.vulnweb.com/hpp/params.php?aaaa%2F=FUZZ&p=FUZZ&pp=FUZZ
+http://testphp.vulnweb.com/hpp/index.php?pp=FUZZ
+http://testphp.vulnweb.com/AJAX/infoartist.php?id=FUZZ&DUMM=FUZZ
+http://testphp.vulnweb.com/AJAX/infoartist.php?id=FUZZ&YVeN=FUZZ
+http://testphp.vulnweb.com/AJAX/infoartist.php?id=FUZZ&fYij=FUZZ
+http://testphp.vulnweb.com/hpp/?pp=FUZZ
+http://testphp.vulnweb.com/search.php?test=FUZZ&cat=FUZZ&ppl=FUZZ
+http://testphp.vulnweb.com/Mod_Rewrite_Shop/details.php?id=FUZZ&mjqN=FUZZ
+http://testphp.vulnweb.com/index.php?id=FUZZ&user=FUZZ
+http://testphp.vulnweb.com/?id=FUZZ
+http://testphp.vulnweb.com/?%3Fid=FUZZ
+http://testphp.vulnweb.com/AJAX/infocateg.php?id=FUZZ
+http://testphp.vulnweb.com/bxss/vuln.php?id=FUZZ
+http://testphp.vulnweb.com/Mod_Rewrite_Shop/rate.php?id=FUZZ
+http://testphp.vulnweb.com/listproducts.php?id=FUZZ
+http://testphp.vulnweb.com/Mod_Rewrite_Shop/buy.php?id=FUZZ
 
 Stage: httpx
 ============
 
 ✓ httpx:stdin:
-http://xss-game.appspot.com/level1/frame?query=FUZZ [200] [Google Cloud,Google Cloud Trace]
-https://xss-game.appspot.com/level1/frame?query=FUZZ [200] [Google Cloud,Google Cloud Trace,HTTP/3]
+http://testphp.vulnweb.com/redir.php?r=FUZZ&view=FUZZ&task=FUZZ&id=FUZZ [302] [Nginx:1.19.0,PHP:5.6.40,Ubuntu]
+http://testphp.vulnweb.com/hpp/params.php?aaaa%2F=FUZZ&p=FUZZ&pp=FUZZ [200] [Nginx:1.19.0,PHP:5.6.40,Ubuntu]
+http://testphp.vulnweb.com/Mod_Rewrite_Shop/details.php?id=FUZZ&mjqN=FUZZ [200] [Nginx:1.19.0,PHP:5.6.40,Ubuntu]
+http://testphp.vulnweb.com/hpp/params.php?aaaa%2F=FUZZ&p=FUZZ [200] [Nginx:1.19.0,PHP:5.6.40,Ubuntu]
+http://testphp.vulnweb.com/AJAX/infoartist.php?id=FUZZ&DUMM=FUZZ [200] [Nginx:1.19.0,PHP:5.6.40,Ubuntu]
+http://testphp.vulnweb.com/comment.php?aid=FUZZ [200] [comment on artist] [Nginx:1.19.0,PHP:5.6.40,Ubuntu]
+http://testphp.vulnweb.com/Mod_Rewrite_Shop/buy.php?id=FUZZ [200] [Nginx:1.19.0,PHP:5.6.40,Ubuntu]
+http://testphp.vulnweb.com/Mod_Rewrite_Shop/rate.php?id=FUZZ [200] [Nginx:1.19.0,PHP:5.6.40,Ubuntu]
+http://testphp.vulnweb.com/AJAX/infocateg.php?id=FUZZ [200] [Nginx:1.19.0,PHP:5.6.40,Ubuntu]
+http://testphp.vulnweb.com/AJAX/infoartist.php?id=FUZZ&YVeN=FUZZ [200] [Nginx:1.19.0,PHP:5.6.40,Ubuntu]
+http://testphp.vulnweb.com/hpp/?pp=FUZZ [200] [HTTP Parameter Pollution Example] [Nginx:1.19.0,PHP:5.6.40,Ubuntu]
+http://testphp.vulnweb.com/AJAX/infoartist.php?id=FUZZ&fYij=FUZZ [200] [Nginx:1.19.0,PHP:5.6.40,Ubuntu]
+http://testphp.vulnweb.com/hpp/index.php?pp=FUZZ [200] [HTTP Parameter Pollution Example] [Nginx:1.19.0,PHP:5.6.40,Ubuntu]
+http://testphp.vulnweb.com/comment.php?pid=FUZZ [200] [comment on picture] [Nginx:1.19.0,PHP:5.6.40,Ubuntu]
+http://testphp.vulnweb.com/bxss/vuln.php?id=FUZZ [200] [Nginx:1.19.0,PHP:5.6.40,Ubuntu]
+http://testphp.vulnweb.com/search.php?test=FUZZ&cat=FUZZ&ppl=FUZZ [200] [search] [DreamWeaver,Nginx:1.19.0,PHP:5.6.40,Ubuntu]
+http://testphp.vulnweb.com/listproducts.php?id=FUZZ [200] [pictures] [DreamWeaver,Nginx:1.19.0,PHP:5.6.40,Ubuntu]
+http://testphp.vulnweb.com/?id=FUZZ [200] [Home of Acunetix Art] [DreamWeaver,Nginx:1.19.0,PHP:5.6.40,Ubuntu]
+http://testphp.vulnweb.com/login.php?id=FUZZ&NtFH=FUZZ [200] [login page] [DreamWeaver,Nginx:1.19.0,PHP:5.6.40,Ubuntu]
+http://testphp.vulnweb.com/?%3Fid=FUZZ [200] [Home of Acunetix Art] [DreamWeaver,Nginx:1.19.0,PHP:5.6.40,Ubuntu]
+http://testphp.vulnweb.com/login.php?id=FUZZ&SlFY=FUZZ [200] [login page] [DreamWeaver,Nginx:1.19.0,PHP:5.6.40,Ubuntu]
+http://testphp.vulnweb.com/index.php?id=FUZZ&user=FUZZ [200] [Home of Acunetix Art] [DreamWeaver,Nginx:1.19.0,PHP:5.6.40,Ubuntu]
+
+Final Output:
+=============
+http://testphp.vulnweb.com/redir.php?r=FUZZ&view=FUZZ&task=FUZZ&id=FUZZ [302] [Nginx:1.19.0,PHP:5.6.40,Ubuntu]
+http://testphp.vulnweb.com/hpp/params.php?aaaa%2F=FUZZ&p=FUZZ&pp=FUZZ [200] [Nginx:1.19.0,PHP:5.6.40,Ubuntu]
+http://testphp.vulnweb.com/Mod_Rewrite_Shop/details.php?id=FUZZ&mjqN=FUZZ [200] [Nginx:1.19.0,PHP:5.6.40,Ubuntu]
+http://testphp.vulnweb.com/hpp/params.php?aaaa%2F=FUZZ&p=FUZZ [200] [Nginx:1.19.0,PHP:5.6.40,Ubuntu]
+http://testphp.vulnweb.com/AJAX/infoartist.php?id=FUZZ&DUMM=FUZZ [200] [Nginx:1.19.0,PHP:5.6.40,Ubuntu]
+http://testphp.vulnweb.com/comment.php?aid=FUZZ [200] [comment on artist] [Nginx:1.19.0,PHP:5.6.40,Ubuntu]
+http://testphp.vulnweb.com/Mod_Rewrite_Shop/buy.php?id=FUZZ [200] [Nginx:1.19.0,PHP:5.6.40,Ubuntu]
+http://testphp.vulnweb.com/Mod_Rewrite_Shop/rate.php?id=FUZZ [200] [Nginx:1.19.0,PHP:5.6.40,Ubuntu]
+http://testphp.vulnweb.com/AJAX/infocateg.php?id=FUZZ [200] [Nginx:1.19.0,PHP:5.6.40,Ubuntu]
+http://testphp.vulnweb.com/AJAX/infoartist.php?id=FUZZ&YVeN=FUZZ [200] [Nginx:1.19.0,PHP:5.6.40,Ubuntu]
+http://testphp.vulnweb.com/hpp/?pp=FUZZ [200] [HTTP Parameter Pollution Example] [Nginx:1.19.0,PHP:5.6.40,Ubuntu]
+http://testphp.vulnweb.com/AJAX/infoartist.php?id=FUZZ&fYij=FUZZ [200] [Nginx:1.19.0,PHP:5.6.40,Ubuntu]
+http://testphp.vulnweb.com/hpp/index.php?pp=FUZZ [200] [HTTP Parameter Pollution Example] [Nginx:1.19.0,PHP:5.6.40,Ubuntu]
+http://testphp.vulnweb.com/comment.php?pid=FUZZ [200] [comment on picture] [Nginx:1.19.0,PHP:5.6.40,Ubuntu]
+http://testphp.vulnweb.com/bxss/vuln.php?id=FUZZ [200] [Nginx:1.19.0,PHP:5.6.40,Ubuntu]
+http://testphp.vulnweb.com/search.php?test=FUZZ&cat=FUZZ&ppl=FUZZ [200] [search] [DreamWeaver,Nginx:1.19.0,PHP:5.6.40,Ubuntu]
+http://testphp.vulnweb.com/listproducts.php?id=FUZZ [200] [pictures] [DreamWeaver,Nginx:1.19.0,PHP:5.6.40,Ubuntu]
+http://testphp.vulnweb.com/?id=FUZZ [200] [Home of Acunetix Art] [DreamWeaver,Nginx:1.19.0,PHP:5.6.40,Ubuntu]
+http://testphp.vulnweb.com/login.php?id=FUZZ&NtFH=FUZZ [200] [login page] [DreamWeaver,Nginx:1.19.0,PHP:5.6.40,Ubuntu]
+http://testphp.vulnweb.com/?%3Fid=FUZZ [200] [Home of Acunetix Art] [DreamWeaver,Nginx:1.19.0,PHP:5.6.40,Ubuntu]
+http://testphp.vulnweb.com/login.php?id=FUZZ&SlFY=FUZZ [200] [login page] [DreamWeaver,Nginx:1.19.0,PHP:5.6.40,Ubuntu]
+http://testphp.vulnweb.com/index.php?id=FUZZ&user=FUZZ [200] [Home of Acunetix Art] [DreamWeaver,Nginx:1.19.0,PHP:5.6.40,Ubuntu]

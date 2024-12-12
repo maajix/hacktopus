@@ -920,19 +920,38 @@ def flow_run_command(ctx, flow_name: str, print_step_output: bool, strip_colors:
                             else:
                                 f.write(f"\n✗ {result['tool']}: Failed\n")
 
-            # **Save Final Output**
-            if previous_stage_output:
-                if show_full_output:
-                    f.write("\nFinal Output:\n")
-                    f.write("=============\n")
-                    f.write(f"{previous_stage_output}\n")
-                else:
-                    f.write("\nFinal Output:\n")
-                    f.write("=============\n")
-                    f.write(f"{previous_stage_output}\n")
+            # Inside run_flow()
+            if save_output:
+                with open(output_file, 'w') as f:
+                    # Write initial headers
+                    f.write("Flow Execution Details\n")
+                    f.write("======================\n")
 
-            console.print(f"\n[green]Output saved to: {output_file}[/green]")
+                    # Write stage results
+                    for stage_name, tools_results in stage_results_local:
+                        f.write(f"\nStage: {stage_name}\n")
+                        f.write("=" * (len(stage_name) + 7) + "\n")
+                        for result in tools_results:
+                            if result['success']:
+                                if show_full_output:
+                                    f.write(f"\n✓ {result['tool']}:\n")
+                                    f.write(
+                                        f"{result['output'].strip() if result['output'] else 'No output'}\n")
+                                else:
+                                    summary = summarize_output(result['output'], result['tool'],
+                                                               show_full_output)
+                                    f.write(f"\n✓ {result['tool']}:\n")
+                                    f.write(f"  {summary}\n")
+                            else:
+                                f.write(f"\n✗ {result['tool']}: Failed\n")
 
+                    # Write final output in the same file handle
+                    if previous_stage_output:
+                        f.write("\nFinal Output:\n")
+                        f.write("=============\n")
+                        f.write(f"{previous_stage_output}\n")
+
+                console.print(f"\n[green]Output saved to: {output_file}[/green]")
     asyncio.run(run_flow())
 
 
