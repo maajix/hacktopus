@@ -1,4 +1,0 @@
-https://yekta-it.de/blog?page=FUZZ
-https://yekta-it.de/?page=FUZZ
-https://yekta-it.de/blog/ein-monat-log4j-was-haben-wir-gelernt?=FUZZ
-https://yekta-it.de/?utm_source=FUZZ
