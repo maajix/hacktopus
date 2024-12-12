@@ -3,6 +3,6 @@ tags:
   - crawler
   - discovery
   - web
-run_command: "/home/majix/go/bin/katana"
+run_command: "katana"
 accepts_stdin: false
 header_flag: "-H"

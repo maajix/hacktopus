@@ -3,6 +3,6 @@ tags:
   - xss
   - scanner
   - web
-run_command: '~/go/bin/Gxss'
+run_command: 'Gxss'
 accepts_stdin: true
 header_flag: ''

@@ -3,3 +3,6 @@ aliases:
     description: 'Grep for URLs'
     command: 'http'
     variables: []
+  js:
+    description: "Extract JavaScript file paths"
+    command: "-o '^.*\\.js'"

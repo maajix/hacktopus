@@ -1,7 +1,11 @@
 aliases:
   stdin:
     description: "Check which hosts are alive and gather title/status/tech."
-    command: "-silent -title -status-code -tech-detect -nfs"
+    command: "-silent -nc -title -status-code -tech-detect -nfs"
     variables:
       - name: url
         description: "The URL to check the availability"
+  js-files:
+    description: "Filter live JavaScript files"
+    command: "-silent -nc -mc 200 -fc 404 -ct application/javascript,text/javascript"
+    variables: [ ]

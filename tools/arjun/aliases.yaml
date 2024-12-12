@@ -1,7 +1,7 @@
 aliases:
   params:
     description: "Discover hidden parameters through fuzzing"
-    command: "-u {{url}} -t 10 --rate-limit 10 -m GET,POST --headers 'User-Agent: Mozilla/5.0'"
+    command: "-u {{url}} -t 10 --rate-limit 10 -m GET,POST --passive --headers 'User-Agent: Mozilla/5.0'"
     variables:
       - name: url
         description: "Target URL"

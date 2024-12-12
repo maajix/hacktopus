@@ -1,8 +1,8 @@
 name: "Httpx"
-run_command: "~/go/bin/httpx"
 description: "Probe and discover alive web services from subdomains."
 documentation: "https://github.com/projectdiscovery/httpx"
 tags:
   - web
   - reconnaissance
+run_command: "httpx"
 accepts_stdin: true

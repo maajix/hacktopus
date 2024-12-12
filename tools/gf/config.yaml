@@ -11,5 +11,5 @@ tags:
   - ssti
   - idor
   - url_redirect
-run_command: "/home/majix/go/bin/gf"
+run_command: "gf"
 accepts_stdin: true

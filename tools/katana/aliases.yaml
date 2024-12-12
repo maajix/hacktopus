@@ -1,7 +1,7 @@
 aliases:
   crawl:
     description: "Deep crawling to find endpoints"
-    command: "-u {{url}} -jc -silent -d 5 -kf all -c 50"
+    command: "-u {{url}} -jc -silent -d 8 -kf all -c 50"
     variables:
       - name: url
         description: "Target URL"

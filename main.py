@@ -176,10 +176,6 @@ def create_tool(name: str):
 def prompt_and_clear(prompt_text: str, default=None) -> str:
     """Prompt the user for input and clear the prompt line after input is received."""
     user_input = click.prompt(prompt_text, default=default)
-    # ANSI escape codes:
-    # \033[F moves the cursor up by one line
-    # \033[K clears from the cursor to the end of the line
-    console.print("\033[F\033[K", end="")
     return user_input
 
 
