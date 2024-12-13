@@ -1,0 +1,40 @@
+version: "1.0"
+name: "Gather available URLs from Target"
+description: "Find URLs, files, directories via crawling, fuzzing, return available non duplicate once"
+tags:
+  - recon
+  - files
+  - directories
+  - active_scan
+
+variables:
+  url: "{{url}}"
+
+stages:
+  discovery:
+    parallel: true
+    distribution: "broadcast"
+    description: "Parallel discovery of parameters and endpoints"
+    tasks:
+      - alias: "paramspider:discover"
+        description: "Find hidden parameters through source analysis"
+      - alias: "arjun:params"
+        description: "Discover hidden parameters through fuzzing"
+      - alias: "katana:crawl"
+        description: "Deep crawling and JavaScript analysis"
+      - alias: "waybackurls:fetch"
+        description: "Historical URL discovery"
+      - alias: "gau:fetch"
+        description: "Passive URL discovery"
+
+  check_alive:
+    distribution: "chained"
+    tasks:
+      - alias: "uro:urls"
+        description: "Remove duplicate URLs"
+      - alias: "httpx:stdin"
+        description: "Check if the found URLs are available"
+
+flow:
+  - stage: discovery
+  - stage: check_alive

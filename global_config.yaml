@@ -1,8 +1,13 @@
 paths:
-  tools_dir: "./tools"
   flows_dir: "./flows"
+  tools_dir: "./tools"
+
+  flows_dir_test: "./tests/flows"
+  tools_dir_test: "./tests/tools"
+
 logging:
   enabled: true
   level: "info"
+
 colors:
   enabled: true
