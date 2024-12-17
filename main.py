@@ -57,6 +57,213 @@ def load_tool(tool_name: str) -> Tuple[Dict[str, Any], Dict[str, Any]]:
     return tool_config, tool_aliases
 
 
+async def run_flow_internal(
+        flow_def: Dict[str, Any],
+        var_values: Dict[str, str],
+        progress: Progress = None,
+        input_data: str = None,
+        print_step_output: bool = False,
+        headers: List[Tuple[str, str]] = None,
+        strip_colors: bool = False,
+        debug: bool = False,
+        flow_depth: int = 0
+) -> Dict[str, Any]:
+    """
+    Core flow execution logic that can be called recursively.
+    Ensures only one Progress instance is active at once.
+    """
+    if flow_depth > 5:
+        return {"output": "", "success": False, "error": "Maximum flow nesting depth exceeded"}
+
+    # If no progress object is passed in, create one here
+    new_progress_created = False
+    if progress is None:
+        progress = Progress(
+            TextColumn("[progress.description]{task.description}"),
+            TimeElapsedColumn(),
+            console=console,
+            expand=True,
+            transient=True
+        )
+        new_progress_created = True
+        progress.start()
+
+    def debug_print(msg: str, data: Any = None):
+        if debug:
+            console.print(f"\n[cyan]DEBUG:[/cyan] {msg}")
+            if data:
+                console.print("[cyan]---START---[/cyan]")
+                console.print(data.strip() if isinstance(data, str) else data)
+                console.print("[cyan]---END---[/cyan]")
+
+    stages = flow_def.get('stages', {})
+    flow_order = flow_def.get('flow', [])
+    previous_stage_output = input_data
+    stage_results = []
+
+    # Create a 'main_task' to represent all stages in this flow
+    main_task = progress.add_task(
+        f"{flow_def.get('name', 'Flow')}",
+        total=len(flow_order)
+    )
+
+    for stage_index, stage_entry in enumerate(flow_order, 1):
+        stage_name = stage_entry['stage']
+        stage_def = stages.get(stage_name, {})
+        tasks = stage_def.get('tasks', [])
+        is_parallel = stage_def.get('parallel', False)
+        distribution = stage_def.get('distribution', 'broadcast')
+
+        stage_tools_results = []
+        current_stage_output = None
+
+        debug_print(f"Starting stage: {stage_name}")
+        debug_print("Previous stage output:", previous_stage_output)
+
+        stage_label = "Parallel" if is_parallel else "Sequential"
+        stage_desc = stage_def.get("description", "")
+
+        # Update the main progress bar's task description
+        progress.update(
+            main_task,
+            description=(
+                f"[bold cyan]{flow_def.get('name', 'Flow')}[/bold cyan]\n"
+                f"  Stage {stage_index}/{len(flow_order)}: [yellow]{stage_name}[/yellow] "
+                f"({stage_label}, distribution={distribution})\n"
+                f"  {stage_desc}"
+            )
+        )
+
+        if is_parallel and distribution == "broadcast":
+            # Parallel "broadcast" means every task runs concurrently
+            coros = []
+            task_ids = []
+            for task in tasks:
+                task_desc = task.get('alias', task.get('command', task.get('flow', 'Unknown')))
+                task_id = progress.add_task(
+                    f"[bold blue]⇉[/bold blue] {task_desc} - {task.get('description', '')}",
+                    total=None
+                )
+                task_ids.append((task_id, task))
+
+                # Decide input
+                broadcast_input = previous_stage_output if task.get('settings', {}).get(
+                    'pipe_input', True) else None
+
+                if 'flow' in task:
+                    child_flow = load_flow(task['flow'])
+                    if child_flow:
+                        child_vars = {
+                            k: var_values.get(v[2:-2], v) if v.startswith('{{') else v
+                            for k, v in task.get('variables', {}).items()
+                        }
+                        coros.append(run_flow_internal(
+                            child_flow, child_vars, progress,
+                            broadcast_input, print_step_output,
+                            headers, strip_colors, debug, flow_depth + 1
+                        ))
+                    else:
+                        coros.append(asyncio.sleep(0))
+
+                elif 'alias' in task:
+                    tool_name, alias_name = task['alias'].split(':', 1)
+                    coros.append(run_alias_async(
+                        tool_name, alias_name, progress, task_id,
+                        broadcast_input, print_step_output, headers,
+                        strip_colors, debug, var_values
+                    ))
+
+                elif 'command' in task:
+                    coros.append(run_command_async(
+                        task['command'], var_values, progress, task_id,
+                        broadcast_input, print_step_output, strip_colors, debug
+                    ))
+
+            results = await asyncio.gather(*coros, return_exceptions=True)
+            combined_outputs = []
+            for ((task_id, task), result) in zip(task_ids, results):
+                if isinstance(result, Exception):
+                    debug_print(f"Error in task: {task}", str(result))
+                    stage_tools_results.append({
+                        "output": "", "success": False, "tool": str(task)
+                    })
+                else:
+                    stage_tools_results.append(result)
+                    if result['success'] and result['output']:
+                        combined_outputs.append(result['output'].strip())
+
+            current_stage_output = "\n".join(combined_outputs) if combined_outputs else None
+
+        elif distribution == "chained" and not is_parallel:
+            # Sequential "chained" means each task feeds the next
+            current_input = previous_stage_output
+            for task in tasks:
+                task_desc = task.get('alias', task.get('command', task.get('flow', 'Unknown')))
+                task_id = progress.add_task(
+                    f"[bold blue]→[/bold blue] {task_desc} - {task.get('description', '')}",
+                    total=None
+                )
+
+                chain_input = current_input if task.get('settings', {}).get('pipe_input',
+                                                                            True) else None
+
+                if 'flow' in task:
+                    child_flow = load_flow(task['flow'])
+                    if child_flow:
+                        child_vars = {
+                            k: var_values.get(v[2:-2], v) if v.startswith('{{') else v
+                            for k, v in task.get('variables', {}).items()
+                        }
+                        result = await run_flow_internal(
+                            child_flow, child_vars, progress,
+                            chain_input, print_step_output,
+                            headers, strip_colors, debug, flow_depth + 1
+                        )
+                    else:
+                        result = {
+                            "output": "", "success": False,
+                            "tool": f"flow:{task['flow']} (not found)"
+                        }
+
+                elif 'alias' in task:
+                    tool_name, alias_name = task['alias'].split(':', 1)
+                    result = await run_alias_async(
+                        tool_name, alias_name, progress, task_id,
+                        chain_input, print_step_output, headers,
+                        strip_colors, debug, var_values
+                    )
+
+                elif 'command' in task:
+                    result = await run_command_async(
+                        task['command'], var_values, progress, task_id,
+                        chain_input, print_step_output, strip_colors, debug
+                    )
+
+                stage_tools_results.append(result)
+
+                # The output of one task becomes the next task's input if pipe_output is true
+                if result['success'] and result['output'] and task.get('settings', {}).get(
+                        'pipe_output', True):
+                    current_input = result['output'].strip()
+                else:
+                    current_input = None
+
+            current_stage_output = current_input
+
+        debug_print(f"Stage {stage_name} completed", stage_tools_results)
+        debug_print("Final stage output:", current_stage_output)
+
+        previous_stage_output = current_stage_output
+        stage_results.append((stage_name, stage_tools_results))
+        progress.update(main_task, advance=1)
+
+    # If we created the progress instance, we stop it
+    if new_progress_created:
+        progress.stop()
+
+    return {"output": previous_stage_output, "success": True, "stage_results": stage_results}
+
+
 def load_flow(flow_name: str) -> Dict[str, Any]:
     """Load flow configuration from flows_dir."""
     paths = global_config.get("paths", {})
@@ -388,6 +595,20 @@ def validate_task(task: Dict[str, Any], var_values: Dict[str, Any]) -> Tuple[boo
                     return False, f"Setting '{setting}' must be a boolean in command task"
         return True, None
 
+    elif 'flow' in task:
+        flow_name = task['flow']
+        flow_def = load_flow(flow_name)
+        if not flow_def:
+            return False, f"Referenced flow '{flow_name}' not found"
+
+        # Validate variable mapping
+        child_vars = task.get('variables', {})
+        for var_name, var_value in child_vars.items():
+            if var_value.startswith('{{') and var_value[2:-2] not in var_values:
+                return False, f"Parent variable '{var_value}' not found"
+
+        return True, None
+
     else:
         return False, "Task must have either 'alias' or 'command' key."
 
@@ -650,6 +871,7 @@ def summarize_output(output: str, tool_name: str, show_full: bool) -> str:
 def flow_run_command(ctx, flow_name: str, print_step_output: bool, strip_colors: bool, debug: bool,
                      show_full_output: bool, save_output: bool, headers: tuple):
     """Run a defined flow with simplified broadcast/chained logic."""
+
     flow_def = load_flow(flow_name)
     if not flow_def:
         console.print(f"[red]Flow '{flow_name}' not found.[/red]")
@@ -660,9 +882,8 @@ def flow_run_command(ctx, flow_name: str, print_step_output: bool, strip_colors:
         os.makedirs(results_dir, exist_ok=True)
         output_file = os.path.join(results_dir, f"{flow_name}_output.txt")
 
+    # parse variables from command line
     flow_vars = flow_def.get('variables', {})
-
-    # Gather extra CLI args as flow variables
     user_vars = {}
     unknown_args = ctx.args[:]
     i = 0
@@ -689,7 +910,6 @@ def flow_run_command(ctx, flow_name: str, print_step_output: bool, strip_colors:
             var_values[var_name] = prompt_and_clear(
                 f"Please provide a value for variable '{var_name}'")
 
-    # Parse and validate headers
     parsed_headers = []
     for header in headers:
         if ':' not in header:
@@ -703,309 +923,83 @@ def flow_run_command(ctx, flow_name: str, print_step_output: bool, strip_colors:
         console.print(f"[red]{error_msg}[/red]")
         return
 
-    stages = flow_def.get('stages', {})
-    flow_order = flow_def.get('flow', [])
-    stage_results = []
-    previous_stage_output = None
-
-    def debug_print(msg: str, data: Any = None):
-        if debug:
-            console.print(f"\n[cyan]DEBUG:[/cyan] {msg}")
-            if data:
-                console.print("[cyan]---START---[/cyan]")
-                console.print(data.strip() if isinstance(data, str) else data)
-                console.print("[cyan]---END---[/cyan]")
-
     async def run_flow():
-        nonlocal previous_stage_output
+        # Create and start the top-level Progress once
+        top_level_progress = Progress(
+            TextColumn("[progress.description]{task.description}"),
+            TimeElapsedColumn(),
+            console=console,
+            expand=True,
+            transient=True
+        )
+        top_level_progress.start()
 
-        with Progress(
-                TextColumn("[progress.description]{task.description}"),
-                TimeElapsedColumn(),
-                console=console,
-                expand=True,
-                transient=True
-        ) as progress:
-            main_task = progress.add_task(description="", total=len(flow_order))
+        # Pass top_level_progress to run_flow_internal
+        result = await run_flow_internal(
+            flow_def,
+            var_values,
+            progress=top_level_progress,
+            input_data=None,
+            print_step_output=print_step_output,
+            headers=parsed_headers,
+            strip_colors=strip_colors,
+            debug=debug
+        )
 
-            for stage_index, stage_entry in enumerate(flow_order, 1):
-                stage_name = stage_entry['stage']
-                stage_def = stages.get(stage_name, {})
-                tasks = stage_def.get('tasks', [])
-                is_parallel = stage_def.get('parallel', False)
-                distribution = stage_def.get('distribution', 'broadcast')
+        # Stop the single progress display
+        top_level_progress.stop()
 
-                stage_tools_results = []
-                current_stage_output = None
-
-                debug_print(f"Starting stage: {stage_name}")
-                debug_print("Previous stage output:", previous_stage_output)
-
-                stage_label = "Parallel" if is_parallel else "Sequential"
-                stage_desc = stage_def.get("description", "")
-
-                # Update progress display
-                progress.update(
-                    main_task,
-                    description=(
-                        f"[bold cyan]{flow_def.get('name', 'Flow')}[/bold cyan]\n"
-                        f"  Stage {stage_index}/{len(flow_order)}: [yellow]{stage_name}[/yellow] "
-                        f"({stage_label}, distribution={distribution})\n"
-                        f"  {stage_desc}"
-                    )
-                )
-
-                # ---------------- PARALLEL STAGE ----------------
-                if is_parallel:
-                    if distribution == "broadcast":
-                        coros = []
-                        task_ids = []
-                        for task in tasks:
-                            task_desc = task.get('alias', task.get('command', 'Unknown'))
-                            task_id = progress.add_task(
-                                f"    [bold blue]⇉[/bold blue] {task_desc}\n      {task.get('description', '')}",
-                                total=None
-                            )
-                            task_ids.append((task_id, task))
-
-                        all_outputs = []
-                        for (task_id, task) in task_ids:
-                            input_data = previous_stage_output if task.get('settings', {}).get(
-                                'pipe_input', True) else None
-                            if 'alias' in task:
-                                tool_name, alias_name = task['alias'].split(':', 1)
-                                coros.append(run_alias_async(
-                                    tool_name,
-                                    alias_name,
-                                    progress,
-                                    task_id,
-                                    input_data,
-                                    print_step_output=task.get('settings', {}).get('print_output',
-                                                                                   False),
-                                    headers=parsed_headers,
-                                    strip_colors=strip_colors,
-                                    debug=debug,
-                                    var_values=var_values
-                                ))
-                            elif 'command' in task:
-                                cmd = task['command']
-                                coros.append(run_command_async(
-                                    cmd,
-                                    var_values,
-                                    progress,
-                                    task_id,
-                                    input_data,
-                                    print_step_output=task.get('settings', {}).get('print_output',
-                                                                                   False),
-                                    strip_colors=strip_colors,
-                                    debug=debug
-                                ))
-                            else:
-                                stage_tools_results.append(
-                                    {"output": "", "success": False, "tool": "unknown"})
-                                coros.append(asyncio.sleep(0))  # filler
-
-                        results = await asyncio.gather(*coros, return_exceptions=True)
-                        combined_outputs = []
-                        for ((task_id, task), result) in zip(task_ids, results):
-                            if isinstance(result, Exception):
-                                debug_print("Error in parallel broadcast task", str(result))
-                                stage_tools_results.append(
-                                    {"output": "", "success": False, "tool": str(task)})
-                            else:
-                                stage_tools_results.append(result)
-                                if result['success'] and result['output']:
-                                    # Always combine for broadcast
-                                    combined_outputs.append(result['output'].strip())
-
-                        # For broadcast, automatically combine the outputs into current_stage_output
-                        if combined_outputs:
-                            current_stage_output = "\n".join(combined_outputs)
-                        else:
-                            current_stage_output = None
-
-                    else:
-                        # parallel + chained => not allowed
-                        console.print(
-                            f"[red]Error: 'chained' distribution not allowed in parallel stage '{stage_name}'.[/red]")
-                        current_stage_output = None
-
-                # ---------------- SEQUENTIAL STAGE ----------------
-                else:
-                    # If distribution == broadcast => every task sees the same stage input, combine all outputs
-                    if distribution == "broadcast":
-                        stage_input = previous_stage_output
-                        collected_outputs = []
-                        for task in tasks:
-                            task_desc = task.get('alias', task.get('command', 'Unknown'))
-                            task_id = progress.add_task(
-                                f"    [bold blue]→[/bold blue] {task_desc}\n      {task.get('description', '')}",
-                                total=None
-                            )
-                            input_data = stage_input if task.get('settings', {}).get('pipe_input',
-                                                                                     True) else None
-
-                            if 'alias' in task:
-                                tool_name, alias_name = task['alias'].split(':', 1)
-                                result = await run_alias_async(
-                                    tool_name,
-                                    alias_name,
-                                    progress,
-                                    task_id,
-                                    input_data,
-                                    print_step_output=task.get('settings', {}).get('print_output',
-                                                                                   False),
-                                    headers=parsed_headers,
-                                    strip_colors=strip_colors,
-                                    debug=debug,
-                                    var_values=var_values
-                                )
-                            elif 'command' in task:
-                                cmd = task['command']
-                                result = await run_command_async(
-                                    cmd,
-                                    var_values,
-                                    progress,
-                                    task_id,
-                                    input_data,
-                                    print_step_output=task.get('settings', {}).get('print_output',
-                                                                                   False),
-                                    strip_colors=strip_colors,
-                                    debug=debug
-                                )
-                            else:
-                                result = {"output": "", "success": False, "tool": "unknown"}
-
-                            stage_tools_results.append(result)
-                            # For broadcast, we combine all outputs
-                            if result['success'] and result['output']:
-                                collected_outputs.append(result['output'].strip())
-
-                        # Combine them
-                        if collected_outputs:
-                            current_stage_output = "\n".join(collected_outputs)
-                        else:
-                            current_stage_output = None
-
-                    elif distribution == "chained":
-                        # Original chaining logic
-                        current_input = previous_stage_output
-                        for task in tasks:
-                            task_desc = task.get('alias', task.get('command', 'Unknown'))
-                            task_id = progress.add_task(
-                                f"    [bold blue]→[/bold blue] {task_desc}\n      {task.get('description', '')}",
-                                total=None
-                            )
-                            input_data = current_input if task.get('settings', {}).get('pipe_input',
-                                                                                       True) else None
-
-                            if 'alias' in task:
-                                tool_name, alias_name = task['alias'].split(':', 1)
-                                result = await run_alias_async(
-                                    tool_name,
-                                    alias_name,
-                                    progress,
-                                    task_id,
-                                    input_data,
-                                    print_step_output=task.get('settings', {}).get('print_output',
-                                                                                   False),
-                                    headers=parsed_headers,
-                                    strip_colors=strip_colors,
-                                    debug=debug,
-                                    var_values=var_values
-                                )
-                            elif 'command' in task:
-                                cmd = task['command']
-                                result = await run_command_async(
-                                    cmd,
-                                    var_values,
-                                    progress,
-                                    task_id,
-                                    input_data,
-                                    print_step_output=task.get('settings', {}).get('print_output',
-                                                                                   False),
-                                    strip_colors=strip_colors,
-                                    debug=debug
-                                )
-                            else:
-                                result = {"output": "", "success": False, "tool": "unknown"}
-
-                            stage_tools_results.append(result)
-                            if result['success'] and result['output']:
-                                should_pipe_output = task.get('settings', {}).get('pipe_output',
-                                                                                  True)
-                                if should_pipe_output:
-                                    current_input = result['output'].strip()
-                                else:
-                                    current_input = None
-                            else:
-                                current_input = None
-                        current_stage_output = current_input
-                    else:
-                        console.print(
-                            f"[yellow]Warning: unknown distribution '{distribution}' for stage '{stage_name}'.[/yellow]")
-                        current_stage_output = None
-
-                debug_print(f"Stage {stage_name} completed", stage_tools_results)
-                debug_print("Final stage output:", current_stage_output)
-
-                previous_stage_output = current_stage_output
-                stage_results.append((stage_name, stage_tools_results))
-                progress.update(main_task, advance=1)
-
-        # Summaries or full details
+        # Summaries and final output
         if not show_full_output:
             console.print("\n[bold cyan]Flow Execution Summary:[/bold cyan]")
         else:
             console.print("\n[bold cyan]Flow Execution Details:[/bold cyan]")
 
-        for stage_name, tools_results in stage_results:
+        for stage_name, tools_results in result['stage_results']:
             console.print(f"\n[bold blue]Stage: {stage_name}[/bold blue]")
-            for result in tools_results:
-                if result['success']:
+            for tool_result in tools_results:
+                if tool_result['success']:
                     if show_full_output:
-                        console.print(f"[green]✓[/green] {result['tool']}:")
-                        console.print(result['output'].strip() if result['output'] else "No output")
+                        console.print(f"[green]✓[/green] {tool_result['tool']}:")
+                        console.print(
+                            tool_result['output'].strip() if tool_result['output'] else "No output")
                     else:
-                        summary = summarize_output(result['output'], result['tool'],
+                        summary = summarize_output(tool_result['output'], tool_result['tool'],
                                                    show_full_output)
-                        console.print(f"[green]✓[/green] {result['tool']}:")
+                        console.print(f"[green]✓[/green] {tool_result['tool']}:")
                         console.print(f"  {summary}")
                 else:
-                    console.print(f"[red]✗[/red] {result['tool']}: Failed")
+                    console.print(f"[red]✗[/red] {tool_result['tool']}: Failed")
 
-        if previous_stage_output:
+        if result['output']:
             console.print("\n[bold cyan]Final Output:[/bold cyan]")
             console.print("=============")
-            console.print(previous_stage_output)
+            console.print(result['output'])
 
         if save_output:
             with open(output_file, 'w') as f:
-                if show_full_output:
-                    f.write("Flow Execution Details\n======================\n")
-                else:
-                    f.write("Flow Execution Summary\n=======================\n")
-
-                for stage_name, tools_results in stage_results:
-                    f.write(f"\nStage: {stage_name}\n")
+                f.write(f"Flow Execution {'Details' if show_full_output else 'Summary'}\n")
+                f.write("=" * 30 + "\n\n")
+                for stage_name, tools_results in result['stage_results']:
+                    f.write(f"Stage: {stage_name}\n")
                     f.write("=" * (len(stage_name) + 7) + "\n")
-                    for result in tools_results:
-                        if result['success']:
+                    for tool_result in tools_results:
+                        if tool_result['success']:
                             if show_full_output:
-                                f.write(f"\n✓ {result['tool']}:\n")
-                                f.write(
-                                    result['output'].strip() if result['output'] else "No output")
+                                f.write(f"\n✓ {tool_result['tool']}:\n")
+                                f.write(tool_result['output'].strip() if tool_result[
+                                    'output'] else "No output")
                                 f.write("\n")
                             else:
-                                summary = summarize_output(result['output'], result['tool'],
-                                                           show_full_output)
-                                f.write(f"\n✓ {result['tool']}:\n  {summary}\n")
+                                summary = summarize_output(tool_result['output'],
+                                                           tool_result['tool'], show_full_output)
+                                f.write(f"\n✓ {tool_result['tool']}:\n  {summary}\n")
                         else:
-                            f.write(f"\n✗ {result['tool']}: Failed\n")
+                            f.write(f"\n✗ {tool_result['tool']}: Failed\n")
 
-                if previous_stage_output:
+                if result['output']:
                     f.write("\nFinal Output:\n=============\n")
-                    f.write(previous_stage_output + "\n")
+                    f.write(result['output'] + "\n")
 
             console.print(f"\n[green]Output saved to: {output_file}[/green]")
 
