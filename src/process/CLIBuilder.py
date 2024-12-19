@@ -33,7 +33,7 @@ class CLIBuilder:
             tool, alias = alias.split(":")
         except Exception as e:
             print(f"[ERR] Could not find ':' delimiter in alias: {alias}")
-            return e
+            return str(e)
 
         aliases_file = Path(self._TOOL_PATH, tool, "aliases.yaml")
 
@@ -44,7 +44,7 @@ class CLIBuilder:
                     self._ALIASES_FILE_CONTENT = data if data is not None else {}
                 except Exception as e:
                     print(f"[ERR] Could not load aliases file: {aliases_file}")
-                    return e
+                    return str(e)
         else:
             print(f"[ERR] Aliases file not found: {aliases_file}")
 
@@ -60,7 +60,7 @@ class CLIBuilder:
                     break
                 except Exception as e:
                     print(f"[ERR] Could not parse command for alias: {alias}")
-                    return e
+                    return str(e)
             else:
                 print(f"[ERR] Alias '{alias}' not found for tool '{tool}'")
 

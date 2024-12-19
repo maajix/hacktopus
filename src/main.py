@@ -1,53 +1,44 @@
-from parser.FlowParser import FlowParser
-from process.CLIExecutionManager import CommandExecutionManager
-from process.CLIBuilder import CLIBuilder, Flow
-from rich.console import Console
 from rich import print as rprint
+from rich.console import Console
+
+from parser.FlowParser import FlowParser
+from process.CLIBuilder import CLIBuilder, Flow
+from process.FlowTaskManager import FlowTaskManager
+from cli.click_manager import create_cli
 
 console = Console()
-
-
-# @TODO Gather tasks / commands, execute in parallel (create threads) if set else sequentially
-def prepare_tasks():
-    depth = 0
-    for stage_execution in execution_information:
-        rprint("\n[b][cyan]==== New Stage ====")
-        rprint("Options:", execution_options[depth])
-        depth += 1
-
-        for dicts in stage_execution:
-            try:
-                current_alias = dicts["alias"]
-                if current_alias:
-                    rprint(f"RUN ALIAS [yellow]{cli_builder.alias_to_command(current_alias)}")
-            except KeyError:
-                pass
-
-            try:
-                current_flow = dicts.get("flow")
-                if current_flow:
-                    options = dicts.get("variables")
-                    rprint(f"RUN FLOW '{current_flow}' | SET VARS \"{options if options else ''}\"")
-            except KeyError:
-                pass
-
-            try:
-                current_command = dicts.get("command")
-                if current_command:
-                    rprint(f"RUN CMD [yellow]{current_command}")
-            except KeyError:
-                pass
-
+flow = Flow()
 
 if __name__ == '__main__':
-    flow_parser = FlowParser("concept.yaml")
-    flow = Flow()
-    cli_builder = CLIBuilder(flow)
+    flow_parser = FlowParser(flow_file="concept.yaml")
+    flow_content = flow_parser.get_file_contents()
 
+    cli_builder = CLIBuilder(Flow=flow)
+    flow_task_manager = FlowTaskManager(Flow=flow)
+
+    # Returns a List[List[Dict[str, str]]] where str is either alias, command,
+    # or flow with the corresponding execution information <tool>:<alias>
     execution_information = flow_parser.get_execution_information()
+
+    # Returns a List[List[Dict[str, str]]] contain all the options for each
+    # stage like description or parallel
     execution_options = flow_parser.get_execution_options()
 
-    flow.set_stage_information(execution_information)
-    flow.set_state_options(execution_options)
+    if execution_information and execution_options:
+        # Update the empty flow object to contain those lists above
+        flow.set_stage_information(execution_information)
+        flow.set_state_options(execution_options)
 
-    prepare_tasks()
+        # Convert the lists into one execution dictionary containing
+        # the converted commands, aliases, and flows with their respective variables if existing
+        # Dict["<type>": List[List[Dict[str, str]]]] with types (options, aliases, commands, flows)
+        is_converted = flow_task_manager.prepare_tasks(flow)
+        if not is_converted:
+            rprint(f"[ERR] While converting tasks")
+    else:
+        rprint("[ERR] Empty flow file provided")
+        exit(1)
+
+    # Dynamically create a Click CLI based on variables in the flow configuration
+    cli = create_cli(flow_yaml=flow_content, execution_array=flow.get_execution_dict())
+    cli()

@@ -22,19 +22,19 @@ class FlowMeta:
         self.data = data
 
     def version(self):
-        return self.data['version']
+        return self.data.get("version")
 
     def name(self):
-        return self.data['name']
+        return self.data.get("name")
 
     def tags(self):
-        return self.data['tags']
+        return self.data.get("tags")
 
     def variables(self):
-        return self.data['variables']
+        return self.data.get("variables")
 
     def stages(self):
-        return self.data['stages']
+        return self.data.get("stages")
 
 
 class FlowParser:
@@ -48,10 +48,11 @@ class FlowParser:
     _IS_VALID_FLOW = None
     _STAGE_INFO = None
     _OPTIONS = None
+    _YAML = None
 
     def __init__(self, flow_file):
         self._FLOW_FILE = flow_file
-        self._parse_flow_file()
+        self._YAML = self._parse_flow_file().data
         self._validate_flow()
         self._extract_stage_information()
 
@@ -76,13 +77,15 @@ class FlowParser:
     def _validate_flow(self) -> bool:
         try:
             if not self._META.version():
-                raise ValueError(f"[ERR] Could not validate version '{self._META.version()}'")
+                print(f"[ERR] Wrong or no version specified '{self._META.version()}'")
+                exit(1)
             if not self._META.tags():
                 print(f"[INF] No tags have been defined")
             if not self._META.variables():
                 print(f"[INF] No variables have been defined")
             if not self._META.stages():
-                raise ValueError(f"[ERR] No stages have been defined")
+                print(f"[ERR] No stages have been defined")
+                exit(1)
         except yaml.YAMLError as exc:
             raise f"[ERR] Invalid YAML syntax. {exc}"
         return True
@@ -91,22 +94,33 @@ class FlowParser:
         tmp_order, tmp_options, stage_options, stage_info = [], [], [], []
 
         for stage in self._META.stages():
-            for options in self._META.stages()[stage]:
-                if options == "tasks":
+            try:
+                try:
+                    for task in self._META.stages()[stage]["tasks"]:
+                        tmp_order.append(task)
+                except KeyError:
+                    print(f"[ERR] No tasks defined for stage '{stage}'")
+                    exit(1)
+
+                for options in self._META.stages()[stage]:
+                    if "description" not in self._META.stages()[stage]:
+                        print(f"[ERR] No description defined for stage '{stage}'")
+                        exit(1)
+                    if options == "tasks":
+                        continue
+                    tmp_options.append({options: self._META.stages()[stage][options]})
+
+                if len(tmp_options) > 0:
+                    stage_options.append(tmp_options)
+                    tmp_options = []
+                else:
                     continue
-                tmp_options.append({options: self._META.stages()[stage][options]})
 
-            if len(tmp_options) > 0:
-                stage_options.append(tmp_options)
-                tmp_options = []
-            else:
-                continue
-
-            for task in self._META.stages()[stage]["tasks"]:
-                tmp_order.append(task)
-
-            stage_info.append(tmp_order)
-            tmp_order = []
+                stage_info.append(tmp_order)
+                tmp_order = []
+            except KeyError:
+                print(f"[ERR] Stage '{stage}' is not defined")
+                exit(1)
 
         self._STAGE_INFO = stage_info
         self._OPTIONS = stage_options
@@ -118,5 +132,5 @@ class FlowParser:
     def get_execution_options(self) -> list[list[Dict]]:
         return self._OPTIONS
 
-
-
+    def get_file_contents(self):
+        return self._YAML
