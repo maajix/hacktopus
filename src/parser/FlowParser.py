@@ -190,7 +190,7 @@ class FlowParser:
         return self.flow_handler.options
 
     @property
-    def yaml(self):
+    def yaml(self) -> dict:
         """
         Return the parsed YAML data from the flow file
 
