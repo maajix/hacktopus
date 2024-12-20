@@ -4,7 +4,7 @@ from rich import print as rprint
 from rich.console import Console
 
 from cli.click_manager import create_cli
-from flow.parser.FlowParser import FlowParser
+from flow.FlowParser import FlowParser
 from flow.Flow import Flow
 from flow.FlowTaskManager import FlowTaskManager
 
