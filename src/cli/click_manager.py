@@ -49,6 +49,9 @@ def extract_vars(flow_config: Dict[str, Any], execution_array: Dict[str, List]) 
     return list(template_vars)
 
 
+# @TODO cli command for selecting the flow to run via flow run <flow_name>
+# @TODO cli command for listing all available flows and their stages / info via flow list
+
 def create_cli(flow_yaml: Dict, execution_array: Dict):
     """
     Dynamically create a Click CLI based on variables in the flow configuration.

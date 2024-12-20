@@ -2,31 +2,77 @@ from typing import List, Dict
 
 
 class Flow:
-    _stage_information = None
-    _state_options = None
-    _execution_dict = None
-    _yaml = None
+    """
+    This class is used to store the parsed information from the FlowParser
+    """
+    def __init__(self):
+        self._stage_information: List[List[Dict]] = []
+        self._state_options: List[List[Dict]] = []
+        self._execution_dict: Dict[str, list] = {}
+        self._yaml: str = ""
 
     def set_stage_information(self, stage_information: List[List[Dict]]):
+        """
+        Set the stage information for the flow
+
+        :Example:
+        >>> Flow.set_stage_information(stage_information)
+        """
         self._stage_information = stage_information
 
     def set_state_options(self, state_options: List[List[Dict]]):
+        """
+        Set the state options for the flow
+
+        :Example:
+        >>> Flow.set_state_options(state_options)
+        """
         self._state_options = state_options
 
     def set_execution_dict(self, execution_array: Dict[str, list]):
+        """
+        Set the execution dictionary for the flow
+
+        :Example:
+        >>> Flow.set_execution_dict(execution_array)
+        """
         self._execution_dict = execution_array
 
     def set_yaml(self, yaml_file: str):
+        """
+        Set the yaml file path for the flow
+
+        :Example:
+        >>> Flow.set_yaml(yaml_file
+        """
         self._yaml = yaml_file
 
-    def get_stage_information(self):
+    @property
+    def stage_information(self):
+        """
+        Get the stage information for the flow
+
+        :Example:
+        >>> Flow.stage_information
+        """
         return self._stage_information
 
-    def get_state_options(self):
+    @property
+    def state_options(self):
+        """
+        Get the state options for the flow
+
+        :Example:
+        >>> Flow.state_options
+        """
         return self._state_options
 
+    @property
     def get_execution_dict(self):
-        return self._execution_dict
+        """
+        Get the execution dictionary for the flow
 
-    def get_yaml(self):
-        return self._yaml
+        :Example:
+        >>> Flow.get_execution_dict
+        """
+        return self._execution_dict

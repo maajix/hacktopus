@@ -1,30 +1,52 @@
+from dataclasses import dataclass
+from typing import Dict
+
 from .Flow import Flow
 from .CLIBuilder import CLIBuilder
+# from rich import print as rprint
+
+
+@dataclass
+class FlowExecutionHandler:
+    options: list[list[Dict]] = None
+    aliases: list[list[Dict]] = None
+    commands: list[list[Dict]] = None
+    flows: list[list[Dict]] = None
+    info: list[list[Dict]] = None
 
 
 class FlowTaskManager:
-    _cli_builder = None
-
-    def __init__(self, Flow: Flow):
-        self._cli_builder = CLIBuilder(Flow)
+    def __init__(self):
+        self._cli_builder = CLIBuilder()
+        self.flow_execution_handler = FlowExecutionHandler()
 
     def prepare_tasks(self, flow: Flow) -> bool:
+        """
+        Prepare the tasks for the given flow object by converting the stage information and options
+
+        :param flow: Flow object
+        :return: True if the flow execution dict is not empty, False otherwise
+
+        :Example:
+        >>> FlowTaskManager().prepare_tasks(flow)
+        """
+
         _depth = 0
-        _execution_information = flow.get_stage_information()
-        _execution_options = flow.get_state_options()
-        _execution_commands = {
+        self.flow_execution_handler.info = flow.stage_information
+        self.flow_execution_handler.options = flow.state_options
+        self.flow_execution_handler.commands = {
             "options": [],
             "aliases": [],
             "commands": [],
             "flows": []
         }
 
-        for stage_execution in _execution_information:
+        for stage_execution in self.flow_execution_handler.info:
             # rprint("\n[b][cyan]==== New Stage ====")
             tmp_options, tmp_alias, tmp_cmd, tmp_flows = [], [], [], []
 
             # rprint("Options:", _execution_options[_depth])
-            tmp_options.append(_execution_options[_depth])
+            tmp_options.append(self.flow_execution_handler.options[_depth])
 
             for dicts in stage_execution:
                 try:
@@ -66,17 +88,18 @@ class FlowTaskManager:
                     pass
 
             # Append the commands of each state in one containing array
-            _execution_commands["options"].extend(tmp_options)
-            _execution_commands["aliases"].append(tmp_alias)
-            _execution_commands["commands"].append(tmp_cmd)
-            _execution_commands["flows"].append(tmp_flows)
+            self.flow_execution_handler.commands["options"].extend(tmp_options)
+            self.flow_execution_handler.commands["aliases"].append(tmp_alias)
+            self.flow_execution_handler.commands["commands"].append(tmp_cmd)
+            self.flow_execution_handler.commands["flows"].append(tmp_flows)
 
             # rprint(f"\nExecution Commands: {_execution_commands}")
             _depth += 1
 
         # Update the given flows execution dict
-        flow.set_execution_dict(_execution_commands)
-        if _execution_commands.__len__() > 0:
+        flow.set_execution_dict(self.flow_execution_handler.commands)
+
+        if self.flow_execution_handler.commands.__len__() > 0:
             return True
         else:
             print(f"[WRN] Execution dict is empty, nothing to do!")
