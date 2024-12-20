@@ -15,7 +15,6 @@ stages:
     parallel: true # run in broadcast mode meaning every tool gets the same input and combines it to one output
     description: "Parallel discovery of parameters and endpoints"
     tasks:
-
       - alias: "paramspider:discover" # .. -s -d {{domain}}" | transform: "url_to_domain"
       - alias: "arjun:params" # .. -u {{url}} -t 10 --rate-limit 10 ..
       - alias: "katana:crawl" # We have to load the tools and get their alias execution command, and then later manage the replacement of template args
@@ -35,15 +34,15 @@ stages:
       - command: "echo \"Hello {{myVar}}!\" "
       - flow: "do_smth_else_flow"
 
-  check_alive: # defaults to chained since parallel is not present
+  check_alive:
     description: "Check availability of found URLs"
     # no parallel defined or set to false means we run in chained mode
     tasks:
       - alias: "uro:urls"
+      - flow: "flow_with_no_vars"
 
       - alias: "httpx:stdin" # This outputs alive URLs
       - command: "example:alias" # This needs domains as input
         transform_stdin: url_to_domain # before stdin goes into this tool we transform the stdout from the last stage using the function given, and use that transformed output as stdin
 
-      - flow: "flow_with_no_vars"
 

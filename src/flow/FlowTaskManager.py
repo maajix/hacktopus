@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from typing import Dict
 
-from .Flow import Flow
-from .CLIBuilder import CLIBuilder
+from flow.Flow import Flow
+from process.CLIBuilder import CLIBuilder
 # from rich import print as rprint
 
 

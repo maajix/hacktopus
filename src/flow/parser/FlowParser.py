@@ -46,7 +46,7 @@ class FlowMeta:
 @dataclass
 class FlowFileHandler:
     flow_filename: str
-    root_dir: str = Path(__file__).parent.parent.parent.absolute()
+    root_dir: str = Path(__file__).parent.parent.parent.parent.absolute()
     flow_dir: str = Path(root_dir, "flows")
 
 

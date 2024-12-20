@@ -4,9 +4,9 @@ from rich import print as rprint
 from rich.console import Console
 
 from cli.click_manager import create_cli
-from parser.FlowParser import FlowParser
-from process.Flow import Flow
-from process.FlowTaskManager import FlowTaskManager
+from flow.parser.FlowParser import FlowParser
+from flow.Flow import Flow
+from flow.FlowTaskManager import FlowTaskManager
 
 console = Console()
 flow = Flow()
