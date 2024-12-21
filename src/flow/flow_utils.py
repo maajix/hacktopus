@@ -49,14 +49,14 @@ def extract_vars(YAML: Dict[str, Any], execution_array: Dict[str, List]) -> List
     return list(template_vars)
 
 
-def create_execution_array(flow_name: str) -> Flow:
+def create_execution_dict(flow_name: str) -> Flow:
     """
     Create an execution array from a flow file.
 
     :param flow_name: The name of the flow file
 
     :Example:
-    >>> create_execution_array('flow.yaml')
+    >>> create_execution_dict('flow.yaml')
     """
 
     flow = Flow(flow_file=flow_name)
@@ -67,7 +67,7 @@ def create_execution_array(flow_name: str) -> Flow:
         exit(1)
 
     # Convert tasks
-    is_converted: bool = flow_task_manager.prepare_tasks(flow)
+    is_converted: bool = flow_task_manager.build_execution_dict(flow)
     if not is_converted:
         rprint("[ERR] While converting tasks")
         exit(1)

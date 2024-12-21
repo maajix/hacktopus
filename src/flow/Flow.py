@@ -2,19 +2,25 @@ import json
 import os
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import Dict
 
 import yaml
 
 
 @dataclass
 class FlowFileHandler:
+    """
+    Dataclass to handle the flow file paths
+    """
     flow_filename: str
     root_dir: str = Path(__file__).parent.parent.parent.absolute()
     flow_dir: str = Path(root_dir, "flows")
 
 
 class ParsedFlow:
+    """
+    Helper class
+    """
     def __init__(self, data: dict):
         self.data = data
 
@@ -26,6 +32,9 @@ class ParsedFlow:
 
 
 class FlowMeta:
+    """
+    Dataclass to handle the flow metadata of YAML file
+    """
     def __init__(self, data: dict):
         self.data = data
 
@@ -52,6 +61,9 @@ class FlowMeta:
 
 @dataclass
 class FlowHandler:
+    """
+    Dataclass to handle the flow data
+    """
     metadata: FlowMeta = None
     is_valid: bool = None
     stage_info: list[list[Dict]] = None

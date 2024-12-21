@@ -4,7 +4,7 @@ import click
 from rich import print as rprint
 
 from flow.Flow import Flow
-from flow.flow_utils import extract_vars, create_execution_array
+from flow.flow_utils import extract_vars, create_execution_dict
 
 
 def prompt(prompt_text: str, default=None) -> str:
@@ -34,6 +34,7 @@ def parse_unknown_args(ctx) -> dict:
 
 
 def validate_unknown_args(extracted_vars: List[str], unknown_args: dict) -> dict:
+    # @TODO if user provides a valid arg and one without a value, he is prompted twice
     flow_args = {}
     for var_name in extracted_vars:
         if var_name in unknown_args:
@@ -64,7 +65,7 @@ def create_cli():
         """
         Extract variables from the flow, and execute the flow with the provided variables.
         """
-        flow: Flow = create_execution_array(flow_name)
+        flow: Flow = create_execution_dict(flow_name)
 
         # Extract template variables
         template_vars: List[str] = extract_vars(YAML=flow.yaml, execution_array=flow.execution_dict)
@@ -75,6 +76,7 @@ def create_cli():
         # Prompt for variables that were not provided
         flow_args: Dict = validate_unknown_args(template_vars, unknown_args)
 
+        # @TODO Execute the flow
         print("@TODO: Replace flow arguments with: ", flow_args)
         print("@TODO: Execute flow")
         rprint(flow.execution_dict)

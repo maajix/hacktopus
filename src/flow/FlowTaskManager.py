@@ -103,7 +103,7 @@ class FlowTaskManager:
 
         return self.flowHandler.alias_command
 
-    def prepare_tasks(self, flow: Flow) -> bool:
+    def build_execution_dict(self, flow: Flow) -> bool:
         """
         Prepare the tasks for the given flow object by converting the stage information and options
 
@@ -111,7 +111,7 @@ class FlowTaskManager:
         :return: True if the flow execution dict is not empty, False otherwise
 
         :Example:
-        >>> FlowTaskManager().prepare_tasks(flow)
+        >>> FlowTaskManager().build_execution_dict(flow)
         """
 
         _depth = 0
