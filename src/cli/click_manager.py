@@ -68,7 +68,6 @@ def create_cli():
         Extract variables from the flow, and execute the flow with the provided variables.
         """
         flow: Flow = Flow(flow_file=flow_name)
-        flow.build_execution_dict()
 
         # Prompt for variables that were not provided
         flow_args: Dict = validate_unknown_args(flow.extract_vars(), parse_unknown_args(ctx))

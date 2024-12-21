@@ -99,9 +99,10 @@ class Flow:
         self.init()
 
     def init(self):
-        self.flow_handler.parsed_yaml_data = self.parse_flow_file().data
-        self.validate_flow()
-        self.extract_stage_information()
+        self.flow_handler.parsed_yaml_data = self._parse_flow_file().data
+        self._validate_flow()
+        self._extract_stage_information()
+        self._build_execution_dict()
 
     def run(self, args: dict):
         """
@@ -111,9 +112,9 @@ class Flow:
         >>> Flow("concept.yaml").run({"url": "https://example.com"})
         """
 
-        print(f"[TODO] Running flow '{self.flow_file}'")
+        print(f"[TODO] Running flow '{self.flow_file}' ('{self.name}')")
         # Replace the template variables with the provided arguments
-        self.replace_execution_dict_templates(args)
+        self._replace_execution_dict_templates(args)
 
         # Run the flow
         CLIEx().run_flow(flow=self)
@@ -167,12 +168,23 @@ class Flow:
         """
         return self.flow_handler.parsed_yaml_data
 
-    def read_json(self) -> ParsedFlow:
+    @property
+    def name(self):
+        """
+        Get the name of the flow
+
+        :Example:
+        >>> Flow.name
+        concept.yaml
+        """
+        return self.flow_handler.metadata.name
+
+    def _read_json(self) -> ParsedFlow:
         """
         Read the flow file and return the parsed JSON in a ParsedFlow object
 
         :Example:
-        >>> Flow("concept.yaml").read_json().data
+        >>> Flow("concept.yaml")._read_json().data
         {'version': '1.0', 'name': 'Gather available URLs from Target',...}
         """
         __flow_path: str = os.path.join(self.flow_file_handler.flow_dir,
@@ -185,26 +197,26 @@ class Flow:
             print(f"Flow file '{self.flow_file_handler.flow_filename}' does not exist.")
             exit(1)
 
-    def parse_flow_file(self) -> FlowMeta:
+    def _parse_flow_file(self) -> FlowMeta:
         """
         Parse the flow file and return the FlowMeta object
 
         :Example:
-        >>> Flow("concept.yaml").parse_flow_file().version
+        >>> Flow("concept.yaml")._parse_flow_file().version
         '1.0
         """
         try:
-            self.flow_handler.metadata = FlowMeta(self.read_json().data)
+            self.flow_handler.metadata = FlowMeta(self._read_json().data)
         except Exception as e:
             print(f"Failed to parse flow file '{self.flow_file_handler.flow_filename}'. Error: {e}")
         return self.flow_handler.metadata
 
-    def validate_flow(self) -> bool:
+    def _validate_flow(self) -> bool:
         """
         Validate the flow file and return True if the flow is valid
 
         :Example:
-        >>> Flow("concept.yaml").validate_flow()
+        >>> Flow("concept.yaml")._validate_flow()
         True
         """
         try:
@@ -222,12 +234,12 @@ class Flow:
             raise f"[ERR] Invalid YAML syntax. {exc}"
         return True
 
-    def extract_stage_information(self) -> None:
+    def _extract_stage_information(self) -> None:
         """
         Extract the stage information from the flow file and store it in the FlowHandler object
 
         :Example:
-        >>> Flow("concept.yaml").extract_stage_information()
+        >>> Flow("concept.yaml")._extract_stage_information()
         """
         tmp_order, tmp_options, stage_options, stage_info = [], [], [], []
 
@@ -310,13 +322,13 @@ class Flow:
 
         return self.flow_handler.alias_command
 
-    def build_execution_dict(self) -> bool:
+    def _build_execution_dict(self) -> bool:
         """
         Prepare the tasks for the given flow object by converting the stage information and options
         :return: True if the flow execution dict is not empty, False otherwise
 
         :Example:
-        >>> Flow().build_execution_dict()
+        >>> Flow()._build_execution_dict()
         """
 
         _depth = 0
@@ -434,7 +446,7 @@ class Flow:
         template_vars.difference_update(mapped_vars)
         return list(template_vars)
 
-    def replace_execution_dict_templates(self, args: dict) -> dict:
+    def _replace_execution_dict_templates(self, args: dict) -> dict:
         """
         Replace the execution arguments with the provided arguments @TODO
         """
