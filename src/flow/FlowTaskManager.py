@@ -20,7 +20,7 @@ class ToolEnums(Enum):
     ALIAS_FILE = "aliases.yaml"
 
 
-@dataclass
+@dataclass(slots=True)
 class ToolFileHandler:
     """
     Dataclass to handle the tool file paths
@@ -31,7 +31,7 @@ class ToolFileHandler:
     tool_dir: str = Path(root_dir, ToolEnums.TOOLS_DIR_NAME.value)
 
 
-@dataclass
+@dataclass(slots=True)
 class FlowHandler:
     """
     Dataclass to handle the flow file paths
@@ -41,7 +41,7 @@ class FlowHandler:
     alias_command: str = None
 
 
-@dataclass
+@dataclass(slots=True)
 class FlowExecutionHandler:
     options: list[list[Dict]] = None
     aliases: list[list[Dict]] = None

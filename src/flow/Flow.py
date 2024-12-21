@@ -7,20 +7,11 @@ from typing import Dict
 import yaml
 
 
-@dataclass
-class FlowFileHandler:
-    """
-    Dataclass to handle the flow file paths
-    """
-    flow_filename: str
-    root_dir: str = Path(__file__).parent.parent.parent.absolute()
-    flow_dir: str = Path(root_dir, "flows")
-
-
 class ParsedFlow:
     """
     Helper class
     """
+
     def __init__(self, data: dict):
         self.data = data
 
@@ -35,6 +26,7 @@ class FlowMeta:
     """
     Dataclass to handle the flow metadata of YAML file
     """
+
     def __init__(self, data: dict):
         self.data = data
 
@@ -59,7 +51,17 @@ class FlowMeta:
         return self.data.get("stages")
 
 
-@dataclass
+@dataclass(slots=True)
+class FlowFileHandler:
+    """
+    Dataclass to handle the flow file paths
+    """
+    flow_filename: str
+    root_dir: str = Path(__file__).parent.parent.parent.absolute()
+    flow_dir: str = Path(root_dir, "flows")
+
+
+@dataclass(slots=True)
 class FlowHandler:
     """
     Dataclass to handle the flow data
@@ -153,7 +155,7 @@ class Flow:
                 return ParsedFlow(data)
         else:
             print(f"Flow file '{self.flow_file_handler.flow_filename}' does not exist.")
-            return ParsedFlow({})
+            exit(1)
 
     def parse_flow_file(self) -> FlowMeta:
         """
