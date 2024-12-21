@@ -75,6 +75,8 @@ def create_cli():
         # Prompt for variables that were not provided
         flow_args: Dict = validate_unknown_args(template_vars, unknown_args)
 
-        print("@TODO: Execute flow with args", flow_args)
+        print("@TODO: Replace flow arguments with: ", flow_args)
+        print("@TODO: Execute flow")
+        rprint(flow.execution_dict)
 
     return cli
