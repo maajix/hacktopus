@@ -20,27 +20,29 @@ def parse_unknown_args(ctx) -> dict:
         arg = unknown_args[i]
         if arg.startswith('--'):
             var_name = arg.lstrip('-')
-            if i + 1 < len(unknown_args):
+            if i + 1 < len(unknown_args) and not unknown_args[i + 1].startswith('--'):
                 var_value = unknown_args[i + 1]
                 user_vars[var_name] = var_value
                 i += 2
             else:
+                # Instead of returning empty dict, just mark this variable as None
                 rprint(f"[red]No value provided for variable '{var_name}'[/red]")
-                return {}
+                user_vars[var_name] = None
+                i += 1
         else:
             rprint(f"[red]Unexpected argument: {arg}[/red]")
-            return {}
+            i += 1
     return user_vars
 
 
 def validate_unknown_args(extracted_vars: List[str], unknown_args: dict) -> dict:
-    # @TODO if user provides a valid arg and one without a value, he is prompted twice
     flow_args = {}
     for var_name in extracted_vars:
-        if var_name in unknown_args:
+        # Check if argument exists AND has a value
+        if var_name in unknown_args and unknown_args[var_name] not in (None, ''):
             flow_args[var_name] = unknown_args[var_name]
         else:
-            # Prompt user for the missing variable value
+            # Prompt only for missing or empty values
             flow_args[var_name] = prompt(
                 f"Please provide a value for variable '{var_name}'"
             )

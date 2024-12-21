@@ -28,6 +28,7 @@ stages:
         description: "Passive URL discovery"
 
   check_alive:
+    description: "Check if the found URLs are available"
     distribution: "chained"
     tasks:
       - alias: "uro:urls"

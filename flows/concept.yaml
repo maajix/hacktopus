@@ -31,7 +31,7 @@ stages:
         variables:
           - "url:domain"
           - "aTest:bTest"
-      - command: "echo \"Hello {{myVar}}!\" "
+      - command: "echo \"Hello {{myvar}}!\" "
       - flow: "do_smth_else_flow"
 
   check_alive:
