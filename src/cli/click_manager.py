@@ -4,7 +4,6 @@ import click
 from rich import print as rprint
 
 from flow.Flow import Flow
-from flow.flow_utils import extract_vars, create_execution_dict
 
 
 def prompt(prompt_text: str, default=None) -> str:
@@ -37,7 +36,8 @@ def parse_unknown_args(ctx) -> dict:
 
 def validate_unknown_args(extracted_vars: List[str], unknown_args: dict) -> dict:
     flow_args = {}
-    for var_name in extracted_vars:
+    # Use the original order from extracted_vars
+    for var_name in extracted_vars:  # removed sorted()
         # Check if argument exists AND has a value
         if var_name in unknown_args and unknown_args[var_name] not in (None, ''):
             flow_args[var_name] = unknown_args[var_name]
@@ -67,20 +67,13 @@ def create_cli():
         """
         Extract variables from the flow, and execute the flow with the provided variables.
         """
-        flow: Flow = create_execution_dict(flow_name)
-
-        # Extract template variables
-        template_vars: List[str] = extract_vars(YAML=flow.yaml, execution_array=flow.execution_dict)
-
-        # Manually parse unknown arguments to find provided variable values
-        unknown_args: Dict = parse_unknown_args(ctx)
+        flow: Flow = Flow(flow_file=flow_name)
+        flow.build_execution_dict()
 
         # Prompt for variables that were not provided
-        flow_args: Dict = validate_unknown_args(template_vars, unknown_args)
+        flow_args: Dict = validate_unknown_args(flow.extract_vars(), parse_unknown_args(ctx))
 
-        # @TODO Execute the flow
-        print("@TODO: Replace flow arguments with: ", flow_args)
-        print("@TODO: Execute flow")
-        rprint(flow.execution_dict)
+        # Execute the flow
+        flow.run(flow_args)
 
     return cli

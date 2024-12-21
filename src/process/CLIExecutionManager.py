@@ -1,12 +1,20 @@
 # filters output
 import shlex
 import subprocess
+from typing import Protocol
+
+
+class Flow(Protocol):
+    @property
+    def execution_dict(self):
+        ...
 
 
 class CommandExecutionManager:
     """
     A class to manage the execution of command line commands
     """
+
     @staticmethod
     def run(command: str, stream_live_output: bool = True):
         """
@@ -33,3 +41,17 @@ class CommandExecutionManager:
             return f"[ERR] Error while trying to run command '{command}'"  # @TODO: Check if return works with threading
         except Exception as e:
             return e
+
+    @staticmethod
+    def run_flow(flow: Flow):
+        """
+        Run a flow @TODO
+
+        :param flow: The flow to run
+        :return: The return code of the command
+
+        :Example:
+        >>> CommandExecutionManager.run_flow(Flow)
+        """
+        print(f"Running flow '{flow.execution_dict}'")
+        pass
