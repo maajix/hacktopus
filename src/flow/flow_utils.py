@@ -4,7 +4,6 @@ from typing import Dict, Any, List
 from flow.Flow import Flow
 from rich import print as rprint
 
-from flow.FlowParser import FlowParser
 from flow.FlowTaskManager import FlowTaskManager
 
 
@@ -60,20 +59,12 @@ def create_execution_array(flow_name: str) -> Flow:
     >>> create_execution_array('flow.yaml')
     """
 
-    flow = Flow()
-    flow_parser = FlowParser(flow_file=flow_name)
-    flow.set_yaml(YAML=flow_parser.yaml)
+    flow = Flow(flow_file=flow_name)
     flow_task_manager = FlowTaskManager()
 
-    execution_information: List[List[Dict]] = flow_parser.execution_information
-    execution_options: List[List[Dict]] = flow_parser.execution_options
-
-    if not (execution_information and execution_options):
+    if not (flow.stage_information and flow.state_options):
         rprint("[ERR] Empty or invalid flow file provided")
         exit(1)
-
-    flow.set_stage_information(execution_information)
-    flow.set_state_options(execution_options)
 
     # Convert tasks
     is_converted: bool = flow_task_manager.prepare_tasks(flow)

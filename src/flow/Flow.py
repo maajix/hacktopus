@@ -1,4 +1,62 @@
+import json
+import os
+from dataclasses import dataclass
+from pathlib import Path
 from typing import List, Dict, Any
+
+import yaml
+
+
+@dataclass
+class FlowFileHandler:
+    flow_filename: str
+    root_dir: str = Path(__file__).parent.parent.parent.absolute()
+    flow_dir: str = Path(root_dir, "flows")
+
+
+class ParsedFlow:
+    def __init__(self, data: dict):
+        self.data = data
+
+    def pretty(self) -> str:
+        return json.dumps(self.data, indent=4)
+
+    def __str__(self) -> str:
+        return json.dumps(self.data)
+
+
+class FlowMeta:
+    def __init__(self, data: dict):
+        self.data = data
+
+    @property
+    def version(self):
+        return self.data.get("version")
+
+    @property
+    def name(self):
+        return self.data.get("name")
+
+    @property
+    def tags(self):
+        return self.data.get("tags")
+
+    @property
+    def variables(self):
+        return self.data.get("variables")
+
+    @property
+    def stages(self):
+        return self.data.get("stages")
+
+
+@dataclass
+class FlowHandler:
+    metadata: FlowMeta = None
+    is_valid: bool = None
+    stage_info: list[list[Dict]] = None
+    options: list[list[Dict]] = None
+    parsed_yaml_data: dict = None
 
 
 class Flow:
@@ -6,29 +64,17 @@ class Flow:
     This class is used to store the parsed information from the FlowParser
     """
 
-    def __init__(self):
-        self._stage_information: List[List[Dict]] = []
-        self._state_options: List[List[Dict]] = []
-        self._execution_dict: Dict[str, list] = {}
-        self._yaml: Dict[str, Any] = {}
+    def __init__(self, flow_file: str):
+        self._execution_dict = None
+        self.flow_file = flow_file
+        self.flow_handler: FlowHandler = FlowHandler()
+        self.flow_file_handler: FlowFileHandler = FlowFileHandler(flow_filename=self.flow_file)
+        self.init()
 
-    def set_stage_information(self, stage_information: List[List[Dict]]):
-        """
-        Set the stage information for the flow
-
-        :Example:
-        >>> Flow.set_stage_information(stage_information)
-        """
-        self._stage_information = stage_information
-
-    def set_state_options(self, state_options: List[List[Dict]]):
-        """
-        Set the state options for the flow
-
-        :Example:
-        >>> Flow.set_state_options(state_options)
-        """
-        self._state_options = state_options
+    def init(self):
+        self.flow_handler.parsed_yaml_data = self.parse_flow_file().data
+        self.validate_flow()
+        self.extract_stage_information()
 
     def set_execution_dict(self, execution_array: Dict[str, list]):
         """
@@ -39,15 +85,6 @@ class Flow:
         """
         self._execution_dict = execution_array
 
-    def set_yaml(self, YAML: Dict):
-        """
-        Set the yaml file path for the flow
-
-        :Example:
-        >>> Flow.set_yaml(YAML)
-        """
-        self._yaml = YAML
-
     @property
     def stage_information(self):
         """
@@ -56,7 +93,7 @@ class Flow:
         :Example:
         >>> Flow.stage_information
         """
-        return self._stage_information
+        return self.flow_handler.stage_info
 
     @property
     def state_options(self):
@@ -66,7 +103,7 @@ class Flow:
         :Example:
         >>> Flow.state_options
         """
-        return self._state_options
+        return self.flow_handler.options
 
     @property
     def execution_dict(self):
@@ -86,4 +123,100 @@ class Flow:
         :Example:
         >>> Flow.yaml
         """
-        return self._yaml
+        return self.flow_handler.parsed_yaml_data
+
+    def read_json(self) -> ParsedFlow:
+        """
+        Read the flow file and return the parsed JSON in a ParsedFlow object
+
+        :Example:
+        >>> Flow("concept.yaml").read_json().data
+        {'version': '1.0', 'name': 'Gather available URLs from Target',...}
+        """
+        __flow_path: str = os.path.join(self.flow_file_handler.flow_dir,
+                                        self.flow_file_handler.flow_filename)
+        if os.path.exists(__flow_path):
+            with open(__flow_path, 'r') as f:
+                data = yaml.safe_load(f)
+                return ParsedFlow(data)
+        else:
+            print(f"Flow file '{self.flow_file_handler.flow_filename}' does not exist.")
+            return ParsedFlow({})
+
+    def parse_flow_file(self) -> FlowMeta:
+        """
+        Parse the flow file and return the FlowMeta object
+
+        :Example:
+        >>> Flow("concept.yaml").parse_flow_file().version
+        '1.0
+        """
+        try:
+            self.flow_handler.metadata = FlowMeta(self.read_json().data)
+        except Exception as e:
+            print(f"Failed to parse flow file '{self.flow_file_handler.flow_filename}'. Error: {e}")
+        return self.flow_handler.metadata
+
+    def validate_flow(self) -> bool:
+        """
+        Validate the flow file and return True if the flow is valid
+
+        :Example:
+        >>> Flow("concept.yaml").validate_flow()
+        True
+        """
+        try:
+            if not self.flow_handler.metadata.version:
+                print(f"[ERR] Wrong or no version specified '{self.flow_handler.metadata.version}'")
+                exit(1)
+            if not self.flow_handler.metadata.tags:
+                print(f"[INF] No tags have been defined")
+            if not self.flow_handler.metadata.variables:
+                print(f"[INF] No variables have been defined")
+            if not self.flow_handler.metadata.stages:
+                print(f"[ERR] No stages have been defined")
+                exit(1)
+        except yaml.YAMLError as exc:
+            raise f"[ERR] Invalid YAML syntax. {exc}"
+        return True
+
+    def extract_stage_information(self) -> None:
+        """
+        Extract the stage information from the flow file and store it in the FlowHandler object
+
+        :Example:
+        >>> Flow("concept.yaml").extract_stage_information()
+        """
+        tmp_order, tmp_options, stage_options, stage_info = [], [], [], []
+
+        for stage in self.flow_handler.metadata.stages:
+            try:
+                try:
+                    for task in self.flow_handler.metadata.stages[stage]["tasks"]:
+                        tmp_order.append(task)
+                except KeyError:
+                    print(f"[ERR] No tasks defined for stage '{stage}'")
+                    exit(1)
+
+                for options in self.flow_handler.metadata.stages[stage]:
+                    if "description" not in self.flow_handler.metadata.stages[stage]:
+                        print(f"[ERR] No description defined for stage '{stage}'")
+                        exit(1)
+                    if options == "tasks":
+                        continue
+                    tmp_options.append({options: self.flow_handler.metadata.stages[stage][options]})
+
+                if len(tmp_options) > 0:
+                    stage_options.append(tmp_options)
+                    tmp_options = []
+                else:
+                    continue
+
+                stage_info.append(tmp_order)
+                tmp_order = []
+            except KeyError:
+                print(f"[ERR] Stage '{stage}' is not defined")
+                exit(1)
+
+        self.flow_handler.stage_info = stage_info
+        self.flow_handler.options = stage_options
