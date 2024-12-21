@@ -394,13 +394,16 @@ class Flow:
         """
         Extract unique template variables from execution array and flow config.
         execution_array should be a dictionary containing keys like "aliases" and "commands".
+
+        :Example:
+        >>> Flow.extract_vars()
         """
         template_vars = set()
         mapped_vars = set()
 
         # Extract variables from flow config
         local_vars = {}
-        for var_name, var_value in self.flow_handler.parsed_yaml_data.get('variables', {}).items():
+        for var_name, var_value in self.yaml.get('variables', {}).items():
             if isinstance(var_value, str) and var_value.startswith('{{'):
                 template_vars.add(var_name.replace('{{', '').replace('}}', ''))
                 local_vars[var_name] = var_value
@@ -412,7 +415,7 @@ class Flow:
                 template_vars.update(matches)
 
         # Check stages and tasks for variable mappings
-        for stage in self.flow_handler.parsed_yaml_data.get('stages', {}).values():
+        for stage in self.yaml.get('stages', {}).values():
             for task in stage.get('tasks', []):
                 map_var = task.get('map_var')
                 if map_var:

@@ -2,6 +2,7 @@
 import shlex
 import subprocess
 from typing import Protocol
+from rich import print as rprint
 
 
 class Flow(Protocol):
@@ -53,5 +54,6 @@ class CommandExecutionManager:
         :Example:
         >>> CommandExecutionManager.run_flow(Flow)
         """
-        print(f"Running flow '{flow.execution_dict}'")
+        rprint("[INFO] Executing flow with data:")
+        rprint(flow.execution_dict)
         pass
